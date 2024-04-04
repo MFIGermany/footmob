@@ -2,8 +2,7 @@ import cors from 'cors'
 
 const ACCEPTED_ORIGINS = [
   'http://localhost:3001',
-  'chrome-extension://ijnaoibbdfhhidglckmpbenlfgjdmobl',
-  '*'
+  'chrome-extension://*'
 ]
 
 export const corsMiddleware = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) => cors({
