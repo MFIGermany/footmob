@@ -1,5 +1,4 @@
 import { createFootMobRouter } from './routes/footmob.js'
-// import { corsMiddleware } from './middlewares/cors.js'
 import express, { json } from 'express'
 import cors from 'cors'
 
@@ -12,14 +11,12 @@ export const createApp = () => {
   app.use(cors())
   app.disable('x-powered-by')
 
+  // Para recibir los valores por POST
   app.use(express.urlencoded({extended: false}))
 
   const URL = process.env.URL
-  const USER = process.env.USER
 
-  const url = URL + '?user=' + USER + '&sortOnClient=true&countryCode=BRA'
-
-  app.use('/footmob', createFootMobRouter({ url }))
+  app.use('/footmob', createFootMobRouter({ url: URL }))
 
   const PORT = process.env.PORT ?? 3000
 

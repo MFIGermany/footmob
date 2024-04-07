@@ -1,14 +1,19 @@
 import { FootMobModel } from '../models/footmob.js'
 
+import list_leagues from '../leagues.json' assert { type: "json" }
+
 export class FootMobController {
   static footMob
 
-  constructor ({ url }) {
+  constructor ({ url }) {    
     this.footMob = new FootMobModel({ url });
   }
   
   index = async (req, res) => {
-    const { fecha } = req.body
+    const { fecha, checks } = req.body
+
+    this.footMob.setFunction('matches')
+
     this.footMob.getRequest(fecha)
       .then(data => {
         // console.log('Datos recibidos:', data);
@@ -22,25 +27,44 @@ export class FootMobController {
         // console.log(data.date)
         data.leagues.forEach(async (league) => { 
           let x = 0;
-          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (favorites.includes(league.name) && codes.includes(league.ccode))) {
-            leagues[league.name] = { flag: flags[league.ccode], matches: [] };
-            league.matches.forEach((match) => {
-              leagues[league.name].matches.push({
-                home: match.home.name,
-                homeid: match.home.id,
-                scorehome: match.home.score,
-                away: match.away.name,
-                awayid: match.away.id,
-                scoreaway: match.away.score,
-                started: match.status.started,
-                finished: match.status.finished,
-                reason: match.status.reason ? match.status.reason.short : undefined,
-                time: match.status.liveTime ? match.status.liveTime.short : undefined,
-                score: match.status.scoreStr ? match.status.scoreStr : undefined,
-                start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
+          //if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (favorites.includes(league.name) && codes.includes(league.ccode))) {
+          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks.includes(league.name) && codes.includes(league.ccode))) {
+            let show = true
+            if(events.includes(league.name)){
+              let event_name = league.name
+              show = false
+              
+              checks.forEach((check) => { 
+                let find = event_name.includes(check)
+                if(find){
+                  //console.log(check)
+                  show = true
+                }
               })
-              x++
-            })
+
+              // console.log('--->' + show)
+            }
+
+            if(show){
+              leagues[league.name] = { flag: flags[league.ccode], matches: [] };
+              league.matches.forEach((match) => {
+                leagues[league.name].matches.push({
+                  home: match.home.name,
+                  homeid: match.home.id,
+                  scorehome: match.home.score,
+                  away: match.away.name,
+                  awayid: match.away.id,
+                  scoreaway: match.away.score,
+                  started: match.status.started,
+                  finished: match.status.finished,
+                  reason: match.status.reason ? match.status.reason.short : undefined,
+                  time: match.status.liveTime ? match.status.liveTime.short : undefined,
+                  score: match.status.scoreStr ? match.status.scoreStr : undefined,
+                  start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
+                })
+                x++
+              })
+            }
           }
         })
         
@@ -50,6 +74,29 @@ export class FootMobController {
         console.error('Error:', error);
       });
     // res.json({'message': 'Bienvenido'})
+  }
+
+  leagues = async (req, res) => {
+    const { lang } = req.params
+    
+    this.footMob.setLang(lang)
+
+    return res.json({ result: list_leagues })
+  }
+
+  news = async (req, res) => {
+    
+    this.footMob.setFunction('trendingnews')
+
+    this.footMob.getRequest()
+      .then(data => {
+        console.log(data)
+
+        return res.json({ result: data })
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      }); 
   }
 
 }

@@ -8,6 +8,8 @@ export const createFootMobRouter = ({ url }) => {
 
   // Aqui van las llamadas a los metodos
   footmobRouter.post('/', footMobController.index)
+  footmobRouter.get('/news', footMobController.news)
+  footmobRouter.get('/leagues/:lang', footMobController.leagues)
 
   return footmobRouter
 }

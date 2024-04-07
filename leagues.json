@@ -1,0 +1,42 @@
+[
+    {
+        "id": 47,
+        "name": "Premier League"
+    },
+    {
+        "id": 54,
+        "name": "Bundesliga"
+    },
+    {
+        "id": 87,
+        "name": "LaLiga"
+    },
+    {
+        "id": 55,
+        "name": "Serie A"
+    },
+    {
+        "id": 53,
+        "name": "Ligue 1"
+    },
+    {
+        "id": 42,
+        "name": "Champions League"
+    },
+    {
+        "id": 73,
+        "name": "Europa League"
+    },
+    {
+        "id": 77,
+        "name": "World Cup"
+    },
+    {
+        "id": 50,
+        "name": "EURO"
+    },
+    {
+        "id": 44,
+        "name": "Copa America"
+    }
+]
