@@ -90,8 +90,7 @@ export class FootMobController {
 
     this.footMob.getRequest()
       .then(data => {
-        console.log(data)
-
+        //console.log(data)
         return res.json({ result: data })
       })
       .catch(error => {
