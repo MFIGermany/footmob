@@ -89,13 +89,24 @@ export class FootMobController {
     this.footMob.setFunction('trendingnews')
 
     this.footMob.getRequest()
-      .then(data => {
-        //console.log(data)
+      .then(async (data) => {
+        // Map de promesas para obtener las URL cortas
+        const promises = data.map((news) => this.footMob.getShortUrl(news.page.url))
+
+        // Esperar a que todas las promesas se resuelvan
+        const urls = await Promise.all(promises)
+
+        // Asignar las URLs cortas a las noticias correspondientes
+        data.forEach((news, index) => {
+          news.page.url = urls[index]
+        })
+
+        // console.log(data)
         return res.json({ result: data })
       })
-      .catch(error => {
-        console.error('Error:', error);
-      }); 
+      .catch((error) => {
+        console.error('Error:', error)
+      })
   }
 
 }

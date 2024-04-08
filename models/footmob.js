@@ -39,7 +39,7 @@ export class FootMobModel {
     try {
       // console.log(fecha)
       const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
-      console.log(url)
+      // console.log(url)
       // Hacer la solicitud HTTP
       const response = await fetch(url, this.requestOptions);
 
@@ -58,4 +58,40 @@ export class FootMobModel {
       throw error;
     }
   }
+
+  getShortUrl = async (longUrl) => {
+    const apiToken = 'bae820bb5d932c409f82abd67';
+
+    if(!longUrl.includes('http') && !longUrl.includes('https')){
+      longUrl = this.url + this.lang + longUrl;
+    }
+
+    const apiUrl = `https://api.cuty.io/quick?token=${apiToken}&url=${encodeURIComponent(longUrl)}&alias=CustomAlias`;
+
+    try {
+        // Hacer la solicitud HTTP
+        const response = await fetch(apiUrl, this.requestOptions);
+
+        // Verificar si la respuesta fue exitosa
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Convertir la respuesta a JSON
+        const data = await response.json();
+
+        if(data.success === true) {
+          return data.short_url
+        }
+        else{
+          console.log(data.message)
+          return longUrl
+        }
+    } catch (error) {
+      // Manejar errores de la solicitud
+      console.error('Error en la solicitud:', error);
+      throw error;
+    }
+  }
+
 }
