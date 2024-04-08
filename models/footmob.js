@@ -59,11 +59,16 @@ export class FootMobModel {
     }
   }
 
+  str_replace = async (search, replace, str) => {
+    return str.replace(new RegExp(search, 'g'), replace)
+  }
+  
   getShortUrl = async (longUrl) => {
-    const apiToken = 'bae820bb5d932c409f82abd67';
+    const apiToken = 'bae820bb5d932c409f82abd67'
 
     if(!longUrl.includes('http') && !longUrl.includes('https')){
-      longUrl = this.url + this.lang + longUrl;
+      const base_url = await this.str_replace('api/', '', this.url)
+      longUrl = base_url + this.lang + longUrl
     }
 
     const apiUrl = `https://api.cuty.io/quick?token=${apiToken}&url=${encodeURIComponent(longUrl)}&alias=CustomAlias`;
