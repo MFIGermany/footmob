@@ -21,8 +21,8 @@ export class FootMobController {
         const leagues = {}
         const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA']
         const favorites = ['Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1']
-        const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage']
         const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png' }
+        const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America', 'Copa Libertadores']
         
         // console.log(data.date)
         data.leagues.forEach(async (league) => { 
