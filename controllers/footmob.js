@@ -26,7 +26,6 @@ export class FootMobController {
         
         // console.log(data.date)
         data.leagues.forEach(async (league) => { 
-          let x = 0;
           //if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (favorites.includes(league.name) && codes.includes(league.ccode))) {
           if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks.includes(league.name) && codes.includes(league.ccode))) {
             let show = true
@@ -62,7 +61,6 @@ export class FootMobController {
                   score: match.status.scoreStr ? match.status.scoreStr : undefined,
                   start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
                 })
-                x++
               })
             }
           }

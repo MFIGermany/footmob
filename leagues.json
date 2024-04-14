@@ -38,5 +38,9 @@
     {
         "id": 44,
         "name": "Copa America"
+    },
+    {
+        "id": 45,
+        "name": "Copa Libertadores"
     }
 ]
