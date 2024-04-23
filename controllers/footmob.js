@@ -40,9 +40,19 @@ export class FootMobController {
                   show = true
                 }
               })
-
-              // console.log('--->' + show)
             }
+			else if(events.includes(league.parentLeagueName)){
+				let event_name = league.parentLeagueName
+				show = false
+				
+				checks.forEach((check) => { 
+					let find = event_name.includes(check)
+					if(find){
+						//console.log(check)
+						show = true
+					}
+				})
+			}
 
             if(show){
               leagues[league.name] = { flag: flags[league.ccode], matches: [] };
