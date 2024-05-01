@@ -84,6 +84,22 @@ export class FootMobController {
     // res.json({'message': 'Bienvenido'})
   }
 
+  view = async (req, res) => {
+    const { url } = req.body
+    const data = {}
+
+    this.footMob.getRequestPage(url)
+      .then(response => {
+        data.url = response
+
+        res.render('view', { data: data })
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    
+  }
+
   leagues = async (req, res) => {
     const { lang } = req.params
     

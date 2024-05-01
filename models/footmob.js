@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { JSDOM } from 'jsdom'
 
 export class FootMobModel {
   static function
@@ -52,6 +53,42 @@ export class FootMobModel {
       const data = await response.json();
 
       return data;
+    } catch (error) {
+      // Manejar errores de la solicitud
+      console.error('Error en la solicitud:', error);
+      throw error;
+    }
+  }
+
+  getRequestPage = async (url) => {
+    try {
+      const idIFrame = "iFrameResizer0"
+      // Hacer la solicitud HTTP
+      const response = await fetch(url);
+
+      // Verificar si la respuesta fue exitosa
+      if (!response.ok) {
+        throw new Error('Error al obtener la página');
+      }
+
+      // Leer el contenido HTML de la respuesta
+      const html = await response.text();
+
+      // Crear un objeto DOM simulado con jsdom
+      const dom = new JSDOM(html);
+
+      // Obtener el documento y el objeto window del DOM
+      const document = dom.window.document;
+
+      // Buscar el elemento meta con el atributo name="canonicalUrl"
+      const linkElement  = document.querySelector('link[rel="canonical"]');
+
+      if (linkElement) {
+        const href = linkElement.getAttribute('href')
+        return href
+      } else {
+          throw new Error('No se encontró la URL en la página');
+      }
     } catch (error) {
       // Manejar errores de la solicitud
       console.error('Error en la solicitud:', error);
