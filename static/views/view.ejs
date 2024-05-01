@@ -8,6 +8,7 @@
 		<title></title>
 		<link href="/img/favico.png" rel="shortcut icon" type="image/ico" />
 		<link href="/css/style.css" rel="stylesheet" type="text/css" />
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1228245428350896" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -18,6 +19,7 @@
 			</div>
 			<div id="center-column">
 				<!-- iframe para cargar la página en el centro -->
+				<!--<iframe id="myIframe" src="https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/"></iframe>-->
 				<iframe id="myIframe" src="<%= data.url %>"></iframe>
 			</div>
 			<div id="right-column">
@@ -30,16 +32,17 @@
 			// Obtener referencia al iframe
 			var iframe = document.getElementById('myIframe');
 	
-			// Temporizador para verificar si el iframe se ha cargado correctamente
-			var timer = setTimeout(function() {
-				console.log('Error al cargar el iframe. Redirigiendo a la página original.');
-				window.location.href = '<%= data.url %>';
-			}, 5000); // 5000 milisegundos (5 segundos)
-	
 			// Manejar evento de carga del iframe
 			iframe.onload = function() {
-				clearTimeout(timer); // Limpiar el temporizador si el iframe se carga correctamente
-				console.log('El iframe se ha cargado correctamente.');
+				setTimeout(function() {
+					var url = '<%= data.url %>';
+					//url = "https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/";
+					
+					console.log(url);
+					if (url.includes('https://as.com/')) {
+						window.location.href = '<%= data.url %>';
+					}
+				}, 100);
 			};
 		</script>
 	</body>
