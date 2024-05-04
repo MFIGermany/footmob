@@ -34,3 +34,35 @@ iframe {
 iframe.content {
     overflow-y: auto;
 }
+
+#pagination, #adsense{
+    height: 70px;
+}
+
+#pagination {
+    margin-top: 20px; /* Espacio superior */
+    text-align: center; /* Centrar horizontalmente */
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente con flexbox */
+    align-items: center; /* Centrar verticalmente con flexbox */
+}
+
+#pagination a {
+    display: inline-block;
+    padding: 10px 15px; /* Aumentar el tamaño del enlace */
+    margin: 5px; /* Espacio entre enlaces */
+    background-color: #f0f0f0; /* Color de fondo */
+    color: #333; /* Color del texto */
+    text-decoration: none;
+    border-radius: 5px; /* Bordes redondeados */
+    font-size: 18px; /* Tamaño de la fuente */
+}
+
+#pagination a:hover {
+    background-color: #ccc; /* Color de fondo al pasar el mouse */
+}
+
+#pagination a.active {
+    background-color: #333333; /* Color de fondo del enlace activo */
+    color: #fff; /* Color del texto del enlace activo */
+}

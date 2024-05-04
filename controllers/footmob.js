@@ -85,19 +85,50 @@ export class FootMobController {
   }
 
   view = async (req, res) => {
-    const { url } = req.body
+    let { url } = req.body
     const data = {}
 
-    this.footMob.getRequestPage(url)
-      .then(response => {
-        data.url = response
+    if(url){
+        try {
+            const response = await this.footMob.getRequestPage(url)
+            data.url = response
+        } catch (error) {
+            console.error('Error:', error)
+        }
+    } else {
+        const base_url = "https://www.fotmob.com/"
 
-        res.render('view', { data: data })
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    
+        try {
+            this.footMob.setFunction('trendingnews')
+
+            const resp = await this.footMob.getRequest()
+            data.urls = []
+
+            let count = 0
+            for (const news of resp) {
+                let url = news.page.url
+
+                if (!url.includes('http') && !url.includes('https')) {
+                    url = base_url + url
+                }
+
+                try {
+                    const response = await this.footMob.getRequestPage(url)
+                    data.urls.push(response)
+                    console.log(response)
+                    if(!count)
+                      data.url = response
+                    count++
+                } catch (error) {
+                    console.error('Error:', error)
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error)
+        }
+    }
+
+    res.render('view', { data: data })
   }
 
   leagues = async (req, res) => {
@@ -118,8 +149,8 @@ export class FootMobController {
         return res.json({ result: data })
       })
       .catch(error => {
-        console.error('Error:', error);
-      }); 
+        console.error('Error:', error)
+      })
   }
 
 }

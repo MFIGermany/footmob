@@ -1,49 +1,81 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="description" content=""/>
-		<meta name="keywords" content="" />
-		<title></title>
-		<link href="/img/favico.png" rel="shortcut icon" type="image/ico" />
-		<link href="/css/style.css" rel="stylesheet" type="text/css" />
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1228245428350896" crossorigin="anonymous"></script>
-	</head>
-	<body>
-		<div id="container">
-			<div id="left-column">
-				<!-- Código de anuncio AdSense para la columna izquierda -->
-				<h2>Anuncio izquierdo</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec libero vel felis rhoncus lacinia nec ut leo.</p>
-			</div>
-			<div id="center-column">
-				<!-- iframe para cargar la página en el centro -->
-				<!--<iframe id="myIframe" src="https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/"></iframe>-->
-				<iframe id="myIframe" src="<%= data.url %>"></iframe>
-			</div>
-			<div id="right-column">
-				<!-- Código de anuncio AdSense para la columna derecha -->
-				<h2>Anuncio derecho</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec libero vel felis rhoncus lacinia nec ut leo.</p>
-			</div>
-		</div>
-		<script>
-			// Obtener referencia al iframe
-			var iframe = document.getElementById('myIframe');
-	
-			// Manejar evento de carga del iframe
-			iframe.onload = function() {
-				setTimeout(function() {
-					var url = '<%= data.url %>';
-					//url = "https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/";
-					
-					console.log(url);
-					if (url.includes('https://as.com/')) {
-						window.location.href = '<%= data.url %>';
-					}
-				}, 100);
-			};
-		</script>
-	</body>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <title></title>
+    <!--<link href="/img/favico.png" rel="shortcut icon" type="image/ico">-->
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1228245428350896" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="header">
+        <% if (data.urls) { %>
+            <!-- Paginado -->
+            <div id="pagination">
+                <% for (let i = 0; i < data.urls.length; i++) { %>
+                    <a href="#" rel="<%= data.urls[i] %>" class="<%= i === 0 ? 'active' : '' %>" onclick="changeIframe(this)"><%= i + 1 %></a>
+                <% } %>
+            </div>
+        <% } else { %>
+            <!-- Anuncio de AdSense -->
+            <div id="adsense">
+                <!-- Inserta aquí tu código de anuncio de AdSense -->
+                <h2>Anuncio de AdSense</h2>
+                <p>Coloca aquí tu código de anuncio de AdSense.</p>
+            </div>
+        <% } %>
+    </div>
+    <div id="container">
+        <div id="left-column">
+            <!-- Código de anuncio AdSense para la columna izquierda -->
+            <h2>Anuncio izquierdo</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec libero vel felis rhoncus lacinia nec ut leo.</p>
+        </div>
+        <div id="center-column">
+            <!-- iframe para cargar la página en el centro -->
+            <!--<iframe id="myIframe" src="https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/"></iframe>-->
+            <iframe id="myIframe" src="<%= data.url %>"></iframe>
+        </div>
+        <div id="right-column">
+            <!-- Código de anuncio AdSense para la columna derecha -->
+            <h2>Anuncio derecho</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec libero vel felis rhoncus lacinia nec ut leo.</p>
+        </div>
+    </div>
+    <script>
+        function changeIframe(element) {
+            // Obtener referencia al iframe
+            var iframe = document.getElementById('myIframe');
+    
+            // Cambiar la URL del iframe
+            var url = element.getAttribute('rel');
+            iframe.src = url;
+    
+            // Activar el elemento clicado y desactivar otros elementos activos
+            var pagination = document.getElementById('pagination');
+            var links = pagination.getElementsByTagName('a');
+            for (var i = 0; i < links.length; i++) {
+                links[i].classList.remove('active');
+            }
+            element.classList.add('active');
+        }
+    
+        // Manejar evento de carga del iframe
+        var iframe = document.getElementById('myIframe');
+        iframe.onload = function() {
+            setTimeout(function() {
+                var url = '<%= data.url %>';
+                //url = "https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/";
+                
+                console.log(url);
+                if (url.includes('https://as.com/')) {
+                    window.location.href = '<%= data.url %>';
+                }
+            }, 100);
+        };
+    </script>
+</body>
 </html>
