@@ -28,6 +28,7 @@ export const createApp = () => {
   const URL = process.env.URL
 
   app.use('/footmob', createFootMobRouter({ url: URL }))
+  app.use('/footlive', createFootMobRouter({ url: URL }))
 
   const PORT = process.env.PORT ?? 3000
 
