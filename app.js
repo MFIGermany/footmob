@@ -2,7 +2,8 @@ import { createFootMobRouter } from './routes/footmob.js'
 import express, { json } from 'express'
 import cors from 'cors'
 import path from 'node:path'
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url'
+import fs from 'fs'
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -29,6 +30,31 @@ export const createApp = () => {
 
   app.use('/footmob', createFootMobRouter({ url: URL }))
   app.use('/footlive', createFootMobRouter({ url: URL }))
+
+  // Ruta para servir archivos de texto
+  app.get('/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, `./${filename}`);
+
+    // Verifica si el archivo existe
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        // Si el archivo no existe, devuelve un error 404
+        res.status(404).send('Archivo no encontrado');
+      } else {
+        // Si el archivo existe, lee su contenido y envíalo como respuesta
+        fs.readFile(filePath, 'utf8', (err, data) => {
+          if (err) {
+            // Si ocurre un error al leer el archivo, devuelve un error 500
+            res.status(500).send('Error interno del servidor')
+          } else {
+            // Si se lee el archivo correctamente, envía el contenido como respuesta
+            res.type('text/plain').send(data)
+          }
+        })
+      }
+    })
+  })
 
   const PORT = process.env.PORT ?? 3000
 
