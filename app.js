@@ -41,21 +41,26 @@ export const createApp = () => {
     const filePath = path.join(__dirname, `./${filename}`);
 
     // Verifica si el archivo existe
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        // Si el archivo no existe, devuelve un error 404
-        res.status(404).send('Archivo no encontrado');
+        // Si ocurre un error al leer el archivo, devuelve un error 500
+        res.status(500).send('Error interno del servidor')
       } else {
-        // Si el archivo existe, lee su contenido y envíalo como respuesta
-        fs.readFile(filePath, 'utf8', (err, data) => {
-          if (err) {
-            // Si ocurre un error al leer el archivo, devuelve un error 500
-            res.status(500).send('Error interno del servidor')
-          } else {
-            // Si se lee el archivo correctamente, envía el contenido como respuesta
-            res.type('text/plain').send(data)
-          }
-        })
+        // Obtener la extensión del archivo
+        const extname = path.extname(filePath);
+        
+        // Establecer el tipo de contenido basado en la extensión del archivo
+        let contentType;
+        if (extname === '.xml') {
+          contentType = 'application/xml'
+        } else if (extname === '.txt') {
+          contentType = 'text/plain'
+        } else {
+          contentType = 'text/plain' // Tipo de contenido predeterminado
+        }
+
+        // Establecer el tipo de contenido en el encabezado de la respuesta
+        res.type(contentType).send(data)
       }
     })
   })
