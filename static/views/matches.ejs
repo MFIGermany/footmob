@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html id="footlive">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="keywords" content="">
-    <title></title>
+    <title>Foobal Live</title>
     <link href="/img/favicon.ico" rel="shortcut icon" type="image/ico">
     <link href="/css/style.css" rel="stylesheet" type="text/css">
     <link href="/css/matches.css" rel="stylesheet" type="text/css">
@@ -63,15 +63,22 @@
         </div>
     </div>
     <script>
+        window.addEventListener('load', function() {
+            const html = document.getElementById('footlive');
+            const lg = navigator.language.substring(0, 2);
+            
+            html.lang = lg;
+        });
+
         // Obtener todos los elementos li del menú
-        var itemsLi = document.querySelectorAll('.menu li');
+        const itemsLi = document.querySelectorAll('.menu li');
 
         // Iterar sobre cada elemento li
         itemsLi.forEach(function(item) {
             // Agregar un evento de clic a cada elemento li
             item.addEventListener('click', function() {
                 // Obtener el elemento ul hijo del elemento li actual
-                var ul = this.querySelector('ul');
+                let ul = this.querySelector('ul');
 
                 // Comprobar si el elemento ul está visible
                 if (ul.style.display === 'none') {
