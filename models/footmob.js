@@ -13,7 +13,7 @@ export class FootMobModel {
       headers: {
         'Content-Type': 'application/json', // Tipo de contenido de la solicitud
       },
-    };
+    }
 
     this.url = url
 
@@ -42,21 +42,21 @@ export class FootMobModel {
       const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
       // console.log(url)
       // Hacer la solicitud HTTP
-      const response = await fetch(url, this.requestOptions);
+      const response = await fetch(url, this.requestOptions)
 
       // Verificar si la respuesta fue exitosa
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.status}`)
       }
 
       // Convertir la respuesta a JSON
-      const data = await response.json();
+      const data = await response.json()
 
-      return data;
+      return data
     } catch (error) {
       // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error);
-      throw error;
+      console.error('Error en la solicitud:', error)
+      throw error
     }
   }
 
@@ -91,10 +91,47 @@ export class FootMobModel {
     } catch (error) {
       // Manejar errores de la solicitud
       console.error('Error en la solicitud:', error)
-      throw error;
+      throw error
     }
   }
 
+  getMatches = async () => {
+    try {
+
+      let url = "https://www.elitegoltv.org/home.php"
+      // Hacer la solicitud HTTP
+      const response = await fetch(url)
+
+      // Verificar si la respuesta fue exitosa
+      if (!response.ok) {
+        throw new Error('Error al obtener la página')
+      }
+
+      // Leer el contenido HTML de la respuesta
+      const html = await response.text()
+
+      // Crear un objeto DOM simulado con jsdom
+      const dom = new JSDOM(html)
+
+      // Obtener el documento y el objeto window del DOM
+      const document = dom.window.document
+
+      // Buscar el elemento meta con el atributo name="canonicalUrl"
+      const menu = document.querySelector('ul.menu')
+
+      if (menu) {
+        return menu          
+      } else {
+          console.log('No se encontró ningún elemento <ul> con la clase "menu"')
+      }
+
+    } catch (error) {
+      // Manejar errores de la solicitud
+      console.error('Error en la solicitud:', error)
+      throw error
+    }
+  }
+  
   str_replace = async (search, replace, str) => {
     return str.replace(new RegExp(search, 'g'), replace)
   }
@@ -107,19 +144,19 @@ export class FootMobModel {
       longUrl = base_url + this.lang + longUrl
     }
 
-    const apiUrl = `https://api.cuty.io/quick?token=${apiToken}&url=${encodeURIComponent(longUrl)}&alias=CustomAlias`;
+    const apiUrl = `https://api.cuty.io/quick?token=${apiToken}&url=${encodeURIComponent(longUrl)}&alias=CustomAlias`
 
     try {
         // Hacer la solicitud HTTP
-        const response = await fetch(apiUrl, this.requestOptions);
+        const response = await fetch(apiUrl, this.requestOptions)
 
         // Verificar si la respuesta fue exitosa
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`)
         }
 
         // Convertir la respuesta a JSON
-        const data = await response.json();
+        const data = await response.json()
 
         if(data.success === true) {
           return data.short_url
@@ -130,8 +167,8 @@ export class FootMobModel {
         }
     } catch (error) {
       // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error);
-      throw error;
+      console.error('Error en la solicitud:', error)
+      throw error
     }
   }
 

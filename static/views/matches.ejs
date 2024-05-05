@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <title></title>
+    <!--<link href="/img/favico.png" rel="shortcut icon" type="image/ico">-->
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/css/matches.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div id="header">
+        <div id="programacion">
+            <h3>PROGRAMACIÓN DE HOY</h3>
+        </div>
+    </div>
+    <div id="container">
+        <div id="left-column">
+            <!-- Código de anuncio AdSense para la columna izquierda -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1228245428350896" crossorigin="anonymous"></script>
+            <!-- Anuncios de visualización -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-1228245428350896"
+                data-ad-slot="1109819880"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        <div id="center-column">
+            <ul class="menu">
+            <% for (let i = 0; i < data.matches.length; i++) { %>
+                <li class="<%= data.matches[i].country %>">
+                    <a href="#"><%= data.matches[i].name %><span class="t"><%= data.matches[i].time %></span></a>
+                    <ul style="display: none;">
+                        <% for (let j = 0; j < data.matches[i].channels.length; j++) { %>
+                            <li class="subitem1">
+                                <a href="<%= data.matches[i].channels[j].url %>" target="_blank"><%= data.matches[i].channels[j].name %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </li>
+            <% } %>
+            </ul>
+        </div>
+        <div id="right-column">
+            <!-- Código de anuncio AdSense para la columna derecha -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1228245428350896" crossorigin="anonymous"></script>
+            <!-- Anuncios de visualización -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-1228245428350896"
+                data-ad-slot="1109819880"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+    <script>
+        // Obtener todos los elementos li del menú
+        var itemsLi = document.querySelectorAll('.menu li');
+
+        // Iterar sobre cada elemento li
+        itemsLi.forEach(function(item) {
+            // Agregar un evento de clic a cada elemento li
+            item.addEventListener('click', function() {
+                // Obtener el elemento ul hijo del elemento li actual
+                var ul = this.querySelector('ul');
+
+                // Comprobar si el elemento ul está visible
+                if (ul.style.display === 'none') {
+                    // Si está oculto, mostrarlo
+                    ul.style.display = 'block';
+                } else {
+                    // Si está visible, ocultarlo
+                    ul.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

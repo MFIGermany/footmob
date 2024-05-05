@@ -131,6 +131,60 @@ export class FootMobController {
     res.render('view', { data: data })
   }
 
+  matches = async (req, res) => {
+    //const leagues = ['ENG', 'ALE', 'ES', 'IT', 'FRA']
+    const base_url = "https://www.elitegoltv.org/"
+    const data = {}
+
+    try {
+      data.matches = []
+      const response = await this.footMob.getMatches()
+      
+      // Obtener todos los elementos li dentro del ul
+      const menuItems = response.querySelectorAll('ul.menu > li')
+
+      // Iterar sobre los elementos li e imprimir su contenido
+      menuItems.forEach((item, index) => {
+        const match = []
+
+        match.country = item.className
+        // Obtener el nombre del partido
+        const linkText = item.querySelector('a').textContent.trim()
+        // Eliminar el texto de la hora del nombre del partido
+        match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
+        match.time = item.querySelector('span.t').textContent.trim()
+        
+        match.channels = []
+        // Obtener los canales de transmisión del partido
+        const subItems = item.querySelectorAll('ul li.subitem1')
+        subItems.forEach(subItem => {
+          const channel = []
+          // Obtener la URL del canal de transmisión
+          let url_chanel = subItem.querySelector('a').getAttribute('href')
+
+          if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
+            url_chanel = base_url + url_chanel
+          }
+
+          channel.url = url_chanel
+          // Obtener el nombre del canal de transmisión
+          channel.name = subItem.querySelector('a').textContent.trim()
+          // Agregar el canal al arreglo de canales del partido
+          match.channels.push(channel)
+        })
+
+        data.matches.push(match)
+      })
+
+      res.render('matches', { data: data })
+    } catch (error) {
+        console.error('Error:', error)
+    }
+    
+
+    // res.render('view', { data: data })
+  }
+
   leagues = async (req, res) => {
     const { lang } = req.params
     

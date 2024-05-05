@@ -66,3 +66,11 @@ iframe.content {
     background-color: #333333; /* Color de fondo del enlace activo */
     color: #fff; /* Color del texto del enlace activo */
 }
+
+#programacion {
+    padding: 10px 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
