@@ -31,10 +31,9 @@ export const createApp = () => {
   app.use('/footmob', createFootMobRouter({ url: URL }))
   app.use('/footlive', createFootMobRouter({ url: URL }))
 
-  /*
   app.get('/', (req, res) => {
     res.redirect('/footlive')
-  })*/
+  })
 
   // Ruta para servir archivos de texto
   app.get('/:filename', (req, res) => {
