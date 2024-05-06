@@ -180,9 +180,6 @@ export class FootMobController {
     } catch (error) {
         console.error('Error:', error)
     }
-    
-
-    // res.render('view', { data: data })
   }
 
   leagues = async (req, res) => {

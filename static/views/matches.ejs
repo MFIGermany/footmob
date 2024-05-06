@@ -86,6 +86,55 @@
                 }
             });
         });
+
+        function ajustarHoraCliente(horaServidor) {
+            try {
+                // Obtener la fecha y hora actual del cliente
+                var fechaCliente = new Date();
+
+                // Obtener la diferencia en minutos entre la hora local y UTC
+                var diferenciaHorarioCliente = fechaCliente.getTimezoneOffset();
+
+                // Ajustar la hora del servidor según la zona horaria del cliente
+                var ajusteHorario = (diferenciaHorarioCliente < 0) ? -Math.abs(diferenciaHorarioCliente) / 60 : Math.abs(diferenciaHorarioCliente) / 60;
+
+                var diferencia = Math.abs(5) - Math.abs(ajusteHorario);
+                
+                // Crear un objeto de fecha y hora para la hora inicial pasada como parámetro
+                var horaInicial = new Date();
+                
+                var [horas, minutos] = horaServidor.split(':').map(Number); // Separar las horas y minutos de la hora pasada como parámetro
+                horaInicial.setHours(horas, minutos, 0, 0); // Establecer la hora según la hora pasada como parámetro
+
+                // Sumar las horas especificadas
+                horaInicial.setHours(horaInicial.getHours() + diferencia);
+
+                // Obtener la hora sumada
+                var horaFormateada = horaInicial.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                return horaFormateada;
+            } catch (error) {
+                console.error('Error en ajustarHoraCliente():', error.message);
+                return horaServidor; // Devolver la hora del servidor sin cambios en caso de error
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            // Obtener todos los elementos con la clase 't' (donde se muestra la hora)
+            const timeElements = document.querySelectorAll('.t');
+            
+            // Recorrer cada elemento y ajustar la hora según la zona horaria del cliente
+            timeElements.forEach((element) => {
+                // Obtener la hora del servidor desde el contenido del elemento
+                const horaServidor = element.textContent.trim();
+                
+                // Ajustar la hora del servidor según la zona horaria del cliente
+                const horaCliente = ajustarHoraCliente(horaServidor);
+                
+                // Actualizar el contenido del elemento con la hora ajustada
+                element.textContent = horaCliente;
+            });
+        });
     </script>
 </body>
 </html>
