@@ -35,6 +35,7 @@
             </script>
         </div>
         <div id="center-column">
+            <% if(data.matches.length > 0)  { %>
             <ul class="menu">
             <% for (let i = 0; i < data.matches.length; i++) { %>
                 <li class="<%= data.matches[i].country %>">
@@ -49,6 +50,11 @@
                 </li>
             <% } %>
             </ul>
+            <% } else { %>
+            <div class="wait-program">
+                <h3>EN ESPERA DE CONFIRMACIÓN</h3>
+            </div>
+            <% } %>
         </div>
         <div id="right-column">
             <!-- Código de anuncio AdSense para la columna derecha -->

@@ -1,4 +1,5 @@
 import { FootMobModel } from '../models/footmob.js'
+import { MatchModel } from '../models/match.js'
 
 import list_leagues from '../leagues.json' assert { type: "json" }
 
@@ -6,7 +7,7 @@ export class FootMobController {
   static footMob
 
   constructor ({ url }) {    
-    this.footMob = new FootMobModel({ url });
+    this.footMob = new FootMobModel({ url })
   }
   
   index = async (req, res) => {
@@ -16,7 +17,7 @@ export class FootMobController {
 
     this.footMob.getRequest(fecha)
       .then(data => {
-        // console.log('Datos recibidos:', data);
+        // console.log('Datos recibidos:', data)
         
         const leagues = {}
         const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA']
@@ -55,7 +56,7 @@ export class FootMobController {
 			}
 
             if(show){
-              leagues[league.name] = { flag: flags[league.ccode], matches: [] };
+              leagues[league.name] = { flag: flags[league.ccode], matches: [] }
               league.matches.forEach((match) => {
                 leagues[league.name].matches.push({
                   home: match.home.name,
@@ -79,8 +80,8 @@ export class FootMobController {
         return res.json({ result: leagues })
       })
       .catch(error => {
-        console.error('Error:', error);
-      });
+        console.error('Error:', error)
+      })
     // res.json({'message': 'Bienvenido'})
   }
 
@@ -131,8 +132,22 @@ export class FootMobController {
     res.render('view', { data: data })
   }
 
+  getDateToday = () => {
+    // Obtener la fecha actual
+    var today = new Date()
+
+    // Obtener el año, mes y día
+    var ano = today.getFullYear()
+    var mes = ('0' + (today.getMonth() + 1)).slice(-2) // Agregar 1 ya que los meses van de 0 a 11
+    var dia = ('0' + today.getDate()).slice(-2)
+
+    // Formatear la fecha en "Y-m-d"
+    var todayFormat = ano + '-' + mes + '-' + dia
+
+    return todayFormat
+  }
+
   matches = async (req, res) => {
-    //const leagues = ['ENG', 'ALE', 'ES', 'IT', 'FRA']
     const base_url = "https://www.elitegoltv.org/"
     const data = {}
 
@@ -144,7 +159,9 @@ export class FootMobController {
       const menuItems = response.querySelectorAll('ul.menu > li')
 
       // Iterar sobre los elementos li e imprimir su contenido
-      menuItems.forEach((item, index) => {
+      //menuItems.forEach((item, index) => {
+      let index = 0
+      for (var item of menuItems) {
         const match = []
 
         match.country = item.className
@@ -153,6 +170,31 @@ export class FootMobController {
         // Eliminar el texto de la hora del nombre del partido
         match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
         match.time = item.querySelector('span.t').textContent.trim()
+
+        let name = match.name
+        
+        const match_today = MatchModel.getAll({ name })
+        const today = this.getDateToday()
+
+        if(match_today.length > 0 && match_today[0].date !== today){
+          //retornar vacio
+          data.matches = []
+          break
+        }
+        else if (match_today.length == 0 && index == 0){
+          const input = []
+          input.name = name
+          input.date = today
+
+          MatchModel.deleteAll()
+
+          const newmatch = MatchModel.create({ input: input })
+          console.log(newmatch)
+        }
+        else{
+          console.log(match_today)
+          console.log('longitud:' + match_today.length)
+        }
         
         match.channels = []
         // Obtener los canales de transmisión del partido
@@ -174,8 +216,9 @@ export class FootMobController {
         })
 
         data.matches.push(match)
-      })
-
+        index++
+      }
+      
       res.render('matches', { data: data })
     } catch (error) {
         console.error('Error:', error)
