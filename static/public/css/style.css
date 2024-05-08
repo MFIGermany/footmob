@@ -86,3 +86,22 @@ iframe.content {
     text-align: center;
     border-radius: 10px;
 }
+
+.extension {
+    position: absolute;
+    top: 43px;
+    background-color: #333333;
+    right: calc(15% + 13px);
+    z-index: 9999;
+    padding: 8px 0 10px 20px;
+    border-radius: 0 0 0 20px;
+}
+
+.text_link {
+    position: relative;
+    font-family: roboto;
+    margin-right: 5px;
+    font-weight: 600;
+    font-size: 17px;
+    top: -8px;
+}
