@@ -15,7 +15,7 @@ dotenv.config({ path: './.env' })
 export const createApp = () => {
   const app = express()
   app.use(json())
-  app.use(cors({ origin: '*' }))
+  app.use(cors())
   app.disable('x-powered-by')
 
   app.use(express.static(path.join(__dirname, './static/public')))
