@@ -132,20 +132,23 @@ export class FootMobController {
     res.render('view', { data: data })
   }
 
-  getDateToday = () => {
+  getDateToday = (hoursToAddOrSubtract = 0) => {
     // Obtener la fecha actual
-    var today = new Date()
+    var today = new Date();
+
+    // Sumar o restar horas
+    today.setHours(today.getHours() - hoursToAddOrSubtract);
 
     // Obtener el año, mes y día
-    var ano = today.getFullYear()
-    var mes = ('0' + (today.getMonth() + 1)).slice(-2) // Agregar 1 ya que los meses van de 0 a 11
-    var dia = ('0' + today.getDate()).slice(-2)
+    var ano = today.getFullYear();
+    var mes = ('0' + (today.getMonth() + 1)).slice(-2); // Agregar 1 ya que los meses van de 0 a 11
+    var dia = ('0' + today.getDate()).slice(-2);
 
     // Formatear la fecha en "Y-m-d"
-    var todayFormat = ano + '-' + mes + '-' + dia
+    var todayFormat = ano + '-' + mes + '-' + dia;
 
-    return todayFormat
-  }
+    return todayFormat;
+ }
 
   matches = async (req, res) => {
     const base_url = "https://www.elitegoltv.org/"
@@ -171,6 +174,7 @@ export class FootMobController {
         match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
         match.time = item.querySelector('span.t').textContent.trim()
 
+        /*
         let name = match.name
         
         const match_today = MatchModel.getAll({ name })
@@ -194,7 +198,7 @@ export class FootMobController {
         else{
           console.log(match_today)
           console.log('longitud:' + match_today.length)
-        }
+        }*/
         
         match.channels = []
         // Obtener los canales de transmisión del partido
