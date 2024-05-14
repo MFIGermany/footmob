@@ -4,8 +4,8 @@
     <title>Football Live ⚽ | Fútbol Gratis En VIVO</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="https://www.football-live.lol/footlive">
-    <meta name="title" content="Football Live | Canales para ver Fútbol Gratis En VIVO Online" />
+    <link rel="canonical" href="https://www.football-live.lol/">
+    <meta name="title" content="Football Live | Canales para ver Futbol Gratis En VIVO Online" />
     <meta name="description" content="Futbol gratis en vivo, Premier League, Bundesliga, Serie A, LaLiga, Ligue 1, UEFA Champions League, entre otros eventos deportivos.">
     <meta name="keywords" content="Futbol en vivo, champions, uefa, clubs, real madrid, barcelona, manchester city, liverpool, bayern">
     <meta name="distribution" content="global" />
@@ -24,7 +24,7 @@
             <h3>PROGRAMACIÓN DEPORTIVA</h3>
         </div>
     </div>
-    <div id="container">
+    <div id="container">        
         <div id="left-column">
             <!-- Anuncios de visualización -->
             <ins class="adsbygoogle"
@@ -38,32 +38,56 @@
             </script>
         </div>
         <div id="center-column">
+            <div class="channels">
+                <a id="list1" href="#" onclick="showChannels(1)" class="selected">Lista 1</a>
+                <a id="list2" href="#" onclick="showChannels(2)">Lista 2</a>
+            </div>
             <div class="extension">
                 <label class="text_link">Obten nuestra extensión:</label>
                 <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank">
                     <img src="./img/chrome_store.png" width="32" height="32" />
                 </a>
             </div>
-            <% if(data.matches.length > 0)  { %>
-            <ul class="menu">
-            <% for (let i = 0; i < data.matches.length; i++) { %>
-                <li class="<%= data.matches[i].country %>">
-                    <a href="#"><%= data.matches[i].name %><span class="t"><%= data.matches[i].time %></span></a>
-                    <ul style="display: none;">
-                        <% for (let j = 0; j < data.matches[i].channels.length; j++) { %>
+            <div id="channels1">
+                <% if(data.matches.length > 0)  { %>
+                <ul class="menu">
+                <% for (let i = 0; i < data.matches.length; i++) { %>
+                    <li class="<%= data.matches[i].country %>">
+                        <a href="#"><%= data.matches[i].name %><span class="t"><%= data.matches[i].time %></span></a>
+                        <ul style="display: none;">
+                            <% for (let j = 0; j < data.matches[i].channels.length; j++) { %>
+                                <li class="subitem1">
+                                    <a href="<%= data.matches[i].channels[j].url %>" target="_blank"><%= data.matches[i].channels[j].name %></a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </li>
+                <% } %>
+                </ul>
+                <% } else { %>
+                <div class="wait-program">
+                    <h3>ESPERANDO CONFIRMACIÓN DE PARTIDOS PARA HOY</h3>
+                </div>
+                <% } %>
+            </div>
+            <div id="channels2" class="invisible">
+                <ul class="menu">
+                <% for (let i = 0; i < data.matchesPE.length; i++) { %>
+                    <li>
+                        <a href="#" class="enlace"><%= data.matchesPE[i].name %><span class="t"><%= data.matchesPE[i].time %></span>
+                            <img src="<%= data.matchesPE[i].flag %>" width="45" heigth="26.5" loading="lazy" class="imgtan">
+                        </a>
+                        <ul style="display: none;">
+                        <% for (let j = 0; j < data.matchesPE[i].channels.length; j++) { %>
                             <li class="subitem1">
-                                <a href="<%= data.matches[i].channels[j].url %>" target="_blank"><%= data.matches[i].channels[j].name %></a>
+                                <a href="<%= data.matchesPE[i].channels[j].url %>" target="_blank"><%= data.matchesPE[i].channels[j].name %></a>
                             </li>
                         <% } %>
-                    </ul>
-                </li>
-            <% } %>
-            </ul>
-            <% } else { %>
-            <div class="wait-program">
-                <h3>EN ESPERA DE CONFIRMACIÓN</h3>
+                        </ul>
+                    </li>
+                <% } %>
+                </ul>
             </div>
-            <% } %>
         </div>
         <div id="right-column">
             <!-- Anuncios de visualización -->
@@ -148,6 +172,26 @@
                 element.textContent = horaCliente;
             });
         });
+
+        function showChannels(channel){
+            const list_channel1 = document.getElementById('channels1');
+            const list_channel2 = document.getElementById('channels2');
+            const list1 = document.getElementById('list1');
+            const list2 = document.getElementById('list2');
+
+            if(channel == 1){
+                list_channel1.classList.remove('invisible');
+                list_channel2.classList.add('invisible');
+                list1.classList.add('selected');
+                list2.classList.remove('selected');
+            }
+            else{
+                list_channel1.classList.add('invisible');
+                list_channel2.classList.remove('invisible');
+                list1.classList.remove('selected');
+                list2.classList.add('selected');
+            }
+        }
     </script>
     <script type="text/javascript">
         aclib.runAutoTag({

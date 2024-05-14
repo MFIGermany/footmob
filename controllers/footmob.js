@@ -1,5 +1,5 @@
 import { FootMobModel } from '../models/footmob.js'
-import { MatchModel } from '../models/match.js'
+// import { MatchModel } from '../models/match.js'
 
 import list_leagues from '../leagues.json' assert { type: "json" }
 
@@ -148,31 +148,42 @@ export class FootMobController {
     var todayFormat = ano + '-' + mes + '-' + dia;
 
     return todayFormat;
- }
+  }
+
+  convertToDate = (event) => {
+    let hora = event.attributes.diary_hour
+    let [hour, minute, second] = hora.split(':')
+    return new Date(0, 0, 0, hour, minute, second)
+  }
 
   matches = async (req, res) => {
+    const base_urlPE = "https://futbollibre.pe/"
     const base_url = "https://www.elitegoltv.org/"
     const data = {}
 
     try {
       data.matches = []
+      data.matchesPE = []
+      const matches_today = []
+
       const response = await this.footMob.getMatches()
       
       // Obtener todos los elementos li dentro del ul
       const menuItems = response.querySelectorAll('ul.menu > li')
-
+      
       // Iterar sobre los elementos li e imprimir su contenido
-      //menuItems.forEach((item, index) => {
-      let index = 0
+      // let index = 0
       for (var item of menuItems) {
         const match = []
-
+        
         match.country = item.className
         // Obtener el nombre del partido
         const linkText = item.querySelector('a').textContent.trim()
         // Eliminar el texto de la hora del nombre del partido
         match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
         match.time = item.querySelector('span.t').textContent.trim()
+
+        matches_today.push(match.name)
 
         /*
         let name = match.name
@@ -220,8 +231,52 @@ export class FootMobController {
         })
 
         data.matches.push(match)
-        index++
+        // index++
       }
+
+      const url_pe = 'https://futbollibre.pe/agenda.json'
+      const url_img = 'https://img.futbollibre.pe'
+
+      const resp_pe = await this.footMob.getRequestPageJson(url_pe)
+
+      resp_pe.data.sort((a, b) => {
+        let dateA = this.convertToDate(a)
+        let dateB = this.convertToDate(b)
+        return dateA - dateB
+      })
+      
+      let find = 0
+      resp_pe.data.forEach(async (item) => {
+        const match = []
+
+
+        
+        match.name = item.attributes.diary_description.replace('vs.', 'vs')
+        match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
+        match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
+
+        if(matches_today.includes(match.name))
+          find = 1
+
+        match.channels = []
+
+        item.attributes.embeds.data.forEach(subItem => {
+          const channel = []
+
+          let url_chanel = subItem.attributes.embed_iframe
+
+          if (url_chanel.includes('embed')) {
+            channel.name = subItem.attributes.embed_name
+            channel.url = base_urlPE + url_chanel
+            match.channels.push(channel)
+          }
+        })
+
+        data.matchesPE.push(match)
+      })
+
+      if(!find)
+        data.matches = []
       
       res.render('matches', { data: data })
     } catch (error) {

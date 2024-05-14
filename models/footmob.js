@@ -95,6 +95,24 @@ export class FootMobModel {
     }
   }
 
+  getRequestPageJson = async (url) => {
+    try {
+      // Hacer la solicitud HTTP
+      const response = await fetch(url)
+
+      // Verificar si la respuesta fue exitosa
+      if (!response.ok) {
+        throw new Error('Error al obtener la página')
+      }
+
+      return response.json()
+    } catch (error) {
+      // Manejar errores de la solicitud
+      console.error('Error en la solicitud:', error)
+      throw error
+    }
+  }
+
   getMatches = async () => {
     try {
 
