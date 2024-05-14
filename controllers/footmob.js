@@ -248,8 +248,6 @@ export class FootMobController {
       let find = 0
       resp_pe.data.forEach(async (item) => {
         const match = []
-
-
         
         match.name = item.attributes.diary_description.replace('vs.', 'vs')
         match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
@@ -265,7 +263,7 @@ export class FootMobController {
 
           let url_chanel = subItem.attributes.embed_iframe
 
-          if (url_chanel.includes('embed')) {
+          if (url_chanel && url_chanel.includes('embed')) {
             channel.name = subItem.attributes.embed_name
             channel.url = base_urlPE + url_chanel
             match.channels.push(channel)
