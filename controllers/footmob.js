@@ -183,7 +183,7 @@ export class FootMobController {
         match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
         match.time = item.querySelector('span.t').textContent.trim()
 
-        matches_today.push(match.name)
+        //matches_today.push(match.name)
 
         /*
         let name = match.name
@@ -255,8 +255,8 @@ export class FootMobController {
           match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
           match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
 
-          if(matches_today.includes(match.name))
-            find = 1
+          //if(matches_today.includes(match.name))
+            //find = 1
 
           match.channels = []
 
@@ -276,8 +276,8 @@ export class FootMobController {
         })
       }
 
-      if(!find)
-        data.matches = []
+      //if(!find)
+        //data.matches = []
       
       res.render('matches', { data: data })
     } catch (error) {

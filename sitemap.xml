@@ -5,6 +5,10 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 <url>
+  <loc>https://www.football-live.lol</loc>
+  <lastmod>2024-05-15</lastmod>
+</url>
+<url>
   <loc>https://www.football-live.lol/footlive</loc>
   <lastmod>2024-05-05</lastmod>
 </url>
