@@ -71,6 +71,7 @@
                 <% } %>
             </div>
             <div id="channels2" class="invisible">
+                <% if(data.matchesPE.length > 0)  { %>
                 <ul class="menu">
                 <% for (let i = 0; i < data.matchesPE.length; i++) { %>
                     <li>
@@ -87,6 +88,11 @@
                     </li>
                 <% } %>
                 </ul>
+                <% } else { %>
+                    <div class="wait-program">
+                        <h3>ESPERANDO CONFIRMACIÓN DE PARTIDOS PARA HOY</h3>
+                    </div>
+                <% } %>
             </div>
         </div>
         <div id="right-column">
