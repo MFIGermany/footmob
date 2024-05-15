@@ -239,8 +239,9 @@ export class FootMobController {
 
       const resp_pe = await this.footMob.getRequestPageJson(url_pe)
 
+      console.log(resp_pe)
       let find = 0
-      if(resp_pe.length){
+      if(resp_pe && resp_pe.data){
         resp_pe.data.sort((a, b) => {
           let dateA = this.convertToDate(a)
           let dateB = this.convertToDate(b)
