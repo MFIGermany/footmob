@@ -1,5 +1,6 @@
 import { createFootMobRouter } from './routes/footmob.js'
 import express, { json } from 'express'
+import compression from 'compression'
 import cors from 'cors'
 import path from 'node:path'
 import { fileURLToPath } from 'url'
@@ -16,6 +17,7 @@ export const createApp = () => {
   const app = express()
   app.use(json())
   app.use(cors())
+  app.use(compression())
   app.disable('x-powered-by')
 
   app.use(express.static(path.join(__dirname, './static/public')))
