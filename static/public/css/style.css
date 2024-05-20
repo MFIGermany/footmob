@@ -9,6 +9,7 @@ body {
 
 #container {
     display: flex;
+    min-height: 580px;
     justify-content: center;
 }
 
