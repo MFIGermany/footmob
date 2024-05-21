@@ -13,12 +13,45 @@ export class FootMobController {
   isString = (input) => {
     return typeof input === 'string'
   }
+
+  getCountry = (name) => {
+    let countries = {
+      'Germany': 'Alemania',
+      'Scotland': 'Escocia',
+      'Hungary': 'Hungría',
+      'Switzerland': 'Suiza',
+      'Spain': 'España',
+      'Croatia': 'Croacia',
+      'Italy': 'Italia',
+      'Slovenia': 'Eslovenia',
+      'Poland': 'Polonia',
+      'Denmark': 'Dinamarca',
+      'England': 'Inglaterra',
+      'Netherlands': 'Países Bajos',
+      'France': 'Francia',
+      'Romania': 'Rumania',
+      'Ukraine': 'Ucrania',
+      'Belgium': 'Bélgica',
+      'Slovakia': 'Eslovaquia',
+      'Turkiye': 'Turquía',
+      'Czechia': 'Chequia'
+    };
+
+    return countries[name] || name
+  }
   
   index = async (req, res) => {
+    let checks_ids = []
     let { fecha, checks } = req.body
 
     if (this.isString(checks))
       checks = checks.split(',')
+
+    checks.forEach((name) => { 
+      let league = this.footMob.getAll({name})
+      if(league)
+        checks_ids.push(league[0].id)
+    })
 
     this.footMob.setFunction('matches')
 
@@ -27,49 +60,46 @@ export class FootMobController {
         // console.log('Datos recibidos:', data)
         
         const leagues = {}
-        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA']
+        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT']
         const favorites = ['Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1']
         const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png' }
         const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America', 'Copa Libertadores']
         
         // console.log(data.date)
-        data.leagues.forEach(async (league) => { 
-          //if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (favorites.includes(league.name) && codes.includes(league.ccode))) {
-          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks.includes(league.name) && codes.includes(league.ccode))) {
+        data.leagues.forEach(async (league) => {                    
+          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode))) {
             let show = true
-            if(events.includes(league.name)){
+            if(events.includes(league.name)){              
               let event_name = league.name
               show = false              
 
               checks.forEach((check) => { 
                 let find = event_name.includes(check)
                 if(find){
-                  //console.log(check)
                   show = true
                 }
               })
             }
-			else if(events.includes(league.parentLeagueName)){
-				let event_name = league.parentLeagueName
-				show = false
-				
-				checks.forEach((check) => { 
-					let find = event_name.includes(check)
-					if(find){
-						//console.log(check)
-						show = true
-					}
-				})
-			}
+            else if(events.includes(league.parentLeagueName)){
+              let event_name = league.parentLeagueName
+              show = false
+              
+              checks.forEach((check) => { 
+                let find = event_name.includes(check)
+                if(find){
+                  show = true
+                }
+              })
+            }
 
             if(show){
               leagues[league.name] = { flag: flags[league.ccode], matches: [] }
               league.matches.forEach((match) => {
                 leagues[league.name].matches.push({
-                  home: match.home.name,
+                  home: this.getCountry(match.home.name),
                   homeid: match.home.id,
                   scorehome: match.home.score,
-                  away: match.away.name,
+                  away: this.getCountry(match.away.name),
                   awayid: match.away.id,
                   scoreaway: match.away.score,
                   started: match.status.started,

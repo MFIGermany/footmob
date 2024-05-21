@@ -1,5 +1,8 @@
+import { readJSON } from '../utils.js'
 import fetch from 'node-fetch'
 import { JSDOM } from 'jsdom'
+
+const leagues = await readJSON('./leagues.json')
 
 export class FootMobModel {
   static function
@@ -36,11 +39,20 @@ export class FootMobModel {
     this.lang = lg
   }
 
+  getAll = ({ name }) => {
+    if (name) {
+      return leagues.filter(
+        league => league.name.toLowerCase() === name.toLowerCase()
+      )
+    }
+
+    return leagues
+  }
+
   getRequest = async (fecha='') => {
     try {
       // console.log(fecha)
       const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
-      // console.log(url)
       // Hacer la solicitud HTTP
       const response = await fetch(url, this.requestOptions)
 
