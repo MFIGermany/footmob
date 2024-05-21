@@ -9,9 +9,16 @@ export class FootMobController {
   constructor ({ url }) {    
     this.footMob = new FootMobModel({ url })
   }
+
+  isString = (input) => {
+    return typeof input === 'string'
+  }
   
   index = async (req, res) => {
-    const { fecha, checks } = req.body
+    let { fecha, checks } = req.body
+
+    if (this.isString(checks))
+      checks = checks.split(',')
 
     this.footMob.setFunction('matches')
 
@@ -32,8 +39,8 @@ export class FootMobController {
             let show = true
             if(events.includes(league.name)){
               let event_name = league.name
-              show = false
-              
+              show = false              
+
               checks.forEach((check) => { 
                 let find = event_name.includes(check)
                 if(find){
