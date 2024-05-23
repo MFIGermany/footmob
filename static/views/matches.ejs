@@ -269,19 +269,14 @@
                     extension.style.display = 'none';
                 }, { once: true });
             });*/
-
-            var aclibElement = document.getElementById('aclib');
-            if (aclibElement) {
-                console.log('entre');
-                aclibElement.addEventListener('load', function() {
-                    console.log('load aclib 3');
-                    aclib.runAutoTag({
-                        zoneId: 'b4zmnmgvqu',
-                    });
-                });
-            } else {
-                console.error('Elemento con id "aclib" no encontrado');
-            }
+        });
+    </script>    
+    <script type="text/javascript" defer>
+        document.getElementById('aclib').addEventListener('load', function() {
+            console.log('load aclib 3');
+            aclib.runAutoTag({
+                zoneId: 'b4zmnmgvqu',
+            });
         });
     </script>
 </body>
