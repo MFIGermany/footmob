@@ -22,10 +22,14 @@
             <h3>PROGRAMACIÓN DEPORTIVA</h3>
         </div>
     </div>
-    <div id="container">        
+    <div id="container" class="view_matches">        
         <div id="left-column">
             <!-- Anuncios de visualización -->
-            
+            <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank">
+                <img id="mini" src="./img/miniatura.jpg" style="width:100%;"/>
+            </a>
+            <!-- Anuncios de visualización -->
+            <div id="ads_left"></div>
         </div>
         <div id="center-column">
             <div class="channels">
@@ -87,7 +91,32 @@
         </div>
         <div id="right-column">
             <!-- Anuncios de visualización -->
-            
+            <div class="slider">
+                <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank">
+                    <div class="slides">
+                        <img src="./img/extension1.png" alt="Partidos"/>
+                        <img src="./img/extension2.png" alt="Ligas"/>
+                        <img src="./img/extension3.png" alt="Noticias"/>
+                        <img src="./img/extension4.png" alt="Acerca De"/>
+                    </div>
+                </a>
+                <div class="buttons">
+                    <button id="prev">❮</button>
+                    <button id="next">❯</button>
+                </div>
+            </div>
+            <!-- Anuncios de visualización -->            
+            <div id="ads_right">
+                <script type="text/javascript">
+                    /*document.getElementById('aclib').addEventListener('load', function() {
+                        console.log('load aclib 2');
+                        aclib.runBanner({
+                            zoneId: '8396842',
+                            renderIn: '#ads_right'
+                        });
+                    });*/
+                </script>
+            </div>
         </div>
     </div>
     <script>
@@ -180,13 +209,57 @@
                 list2.classList.add('selected');
             }
         }
+
+        //Slides
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelector('.slides');
+            const images = document.querySelectorAll('.slides img');
+            const prevButton = document.getElementById('prev');
+            const nextButton = document.getElementById('next');
+
+            let index = 0;
+
+            function showSlide(i) {
+                if (i >= images.length) {
+                    index = 0;
+                } else if (i < 0) {
+                    index = images.length - 1;
+                } else {
+                    index = i;
+                }
+                slides.style.transform = `translateX(${-index * 100}%)`;
+            }
+
+            prevButton.addEventListener('click', function() {
+                showSlide(index - 1);
+            });
+
+            nextButton.addEventListener('click', function() {
+                showSlide(index + 1);
+            });
+
+            // Auto play functionality (optional)
+            setInterval(function() {
+                showSlide(index + 1);
+            }, 4000); // Change image every 4 seconds
+        });
     </script>
     <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js" async></script>
     <script type="text/javascript">
         document.getElementById('aclib').addEventListener('load', function() {
-            console.log('entre');
+            console.log('load aclib');
             aclib.runAutoTag({
                 zoneId: 'b4zmnmgvqu',
+            });
+
+            aclib.runBanner({
+                zoneId: '8396842',
+                renderIn: '#ads_left'
+            });
+
+            aclib.runBanner({
+                zoneId: '8396842',
+                renderIn: '#ads_right'
             });
         });
     </script>

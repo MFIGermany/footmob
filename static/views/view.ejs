@@ -13,8 +13,7 @@
     <meta name="referrer" content="always" />
     <meta name="robots" content="all" />
     <link rel="icon" href="/img/favicon.ico" type="image/ico">
-    <link href="/css/style.css" rel="stylesheet" type="text/css">
-    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js" async></script>
+    <link href="/css/style.css" rel="stylesheet" type="text/css">    
 </head>
 <body>
     <div id="header">
@@ -30,16 +29,7 @@
     <div id="container" class="view_news">
         <div id="left-column">
             <!-- Código de anuncio AdSense para la columna izquierda -->
-            <div id="ads_left">
-                <script type="text/javascript">
-                    document.getElementById('aclib').addEventListener('load', function() {
-                        aclib.runBanner({
-                            zoneId: '8396842',
-                            renderIn: '#ads_left'
-                        });
-                    });
-                </script>
-            </div>
+            <div id="ads_left"></div>
         </div>
         <div id="center-column">
             <!-- iframe para cargar la página en el centro -->
@@ -48,16 +38,7 @@
         </div>
         <div id="right-column">
             <!-- Código de anuncio AdSense para la columna derecha -->
-            <div id="ads_right">
-                <script type="text/javascript">
-                    document.getElementById('aclib').addEventListener('load', function() {
-                        aclib.runBanner({
-                            zoneId: '8396842',
-                            renderIn: '#ads_right'
-                        });
-                    });
-                </script>
-            </div>
+            <div id="ads_right"></div>
         </div>
     </div>
     <script>
@@ -92,10 +73,22 @@
             }, 100);
         };
     </script>
+    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js" async></script>
     <script type="text/javascript">
         document.getElementById('aclib').addEventListener('load', function() {
+            console.log('load aclib');
             aclib.runAutoTag({
                 zoneId: 'b4zmnmgvqu',
+            });
+
+            aclib.runBanner({
+                zoneId: '8396842',
+                renderIn: '#ads_left'
+            });
+
+            aclib.runBanner({
+                zoneId: '8396842',
+                renderIn: '#ads_right'
             });
         });
     </script>
