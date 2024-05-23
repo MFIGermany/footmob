@@ -15,6 +15,7 @@
     <link rel="icon" href="/img/favicon.ico" type="image/ico">
     <link href="/css/style.css" rel="stylesheet" type="text/css">
     <link href="/css/matches.css" rel="stylesheet" type="text/css">
+    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js" async></script>
 </head>
 <body>
     <div id="header">
@@ -22,10 +23,22 @@
             <h3>PROGRAMACIÓN DEPORTIVA</h3>
         </div>
     </div>
-    <div id="container">        
+    <div id="container" class="view_matches">        
         <div id="left-column">
-            <!-- Anuncios de visualización -->
-            
+            <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank">
+                <img id="mini" src="./img/miniatura.jpg" style="width:100%;"/>
+            </a>
+            <!-- Anuncios de visualización -->            
+            <div id="ads_left">
+                <script type="text/javascript">
+                    document.getElementById('aclib').addEventListener('load', function() {
+                        aclib.runBanner({
+                            zoneId: '8396842',
+                            renderIn: '#ads_left'
+                        });
+                    });
+                </script>
+            </div>
         </div>
         <div id="center-column">
             <div class="channels">
@@ -85,9 +98,32 @@
                 <% } %>
             </div>
         </div>
-        <div id="right-column">
-            <!-- Anuncios de visualización -->
-            
+        <div id="right-column">            
+            <div class="slider">
+                <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank">
+                    <div class="slides">
+                        <img src="./img/extension1.png" alt="Partidos"/>
+                        <img src="./img/extension2.png" alt="Ligas"/>
+                        <img src="./img/extension3.png" alt="Noticias"/>
+                        <img src="./img/extension4.png" alt="Acerca De"/>
+                    </div>
+                </a>
+                <div class="buttons">
+                    <button id="prev">❮</button>
+                    <button id="next">❯</button>
+                </div>
+            </div>
+            <!-- Anuncios de visualización -->            
+            <div id="ads_right">
+                <script type="text/javascript">
+                    document.getElementById('aclib').addEventListener('load', function() {
+                        aclib.runBanner({
+                            zoneId: '8396842',
+                            renderIn: '#ads_right'
+                        });
+                    });
+                </script>
+            </div>
         </div>
     </div>
     <script>
@@ -180,8 +216,59 @@
                 list2.classList.add('selected');
             }
         }
-    </script>
-    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js" async></script>
+
+        //Slides
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelector('.slides');
+            const images = document.querySelectorAll('.slides img');
+            const prevButton = document.getElementById('prev');
+            const nextButton = document.getElementById('next');
+
+            let index = 0;
+
+            function showSlide(i) {
+                if (i >= images.length) {
+                    index = 0;
+                } else if (i < 0) {
+                    index = images.length - 1;
+                } else {
+                    index = i;
+                }
+                slides.style.transform = `translateX(${-index * 100}%)`;
+            }
+
+            prevButton.addEventListener('click', function() {
+                showSlide(index - 1);
+            });
+
+            nextButton.addEventListener('click', function() {
+                showSlide(index + 1);
+            });
+
+            // Auto play functionality (optional)
+            setInterval(function() {
+                showSlide(index + 1);
+            }, 4000); // Change image every 3 seconds
+            /*
+            var mini = document.querySelector('#mini');
+            var slider = document.querySelector('.slides');
+            var extension = document.querySelector('.extension');
+
+            slider.addEventListener('mouseover', function() {
+                extension.style.display = 'block';
+                setTimeout(function() {
+                    extension.style.opacity = 1;
+                }, 10); // pequeño retraso para asegurar la transición
+            });
+
+            slider.addEventListener('mouseout', function() {
+                extension.style.opacity = 0;
+                extension.addEventListener('transitionend', function() {
+                    extension.style.display = 'none';
+                }, { once: true });
+            });*/
+        });
+    </script>    
     <script type="text/javascript">
         document.getElementById('aclib').addEventListener('load', function() {
             aclib.runAutoTag({

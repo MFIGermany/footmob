@@ -17,12 +17,26 @@ body {
     width: 15%;
     background-color: #333;
     color: #fff;
-    padding: 10px;
+    padding: 10px;    
+}
+
+#ads_left, #ads_right{
+    display: flex;
+    margin-top:20px;
+    justify-content: center;
 }
 
 #center-column {
     width: 70%;
     padding: 0;
+}
+
+.view_matches #left-column, .view_matches #right-column{
+    width: 20%;
+}
+
+.view_matches #center-column {
+    width: 60%;
 }
 
 iframe {
@@ -92,12 +106,15 @@ iframe.content {
 
 .extension {
     position: absolute;
+    /*display: none;*/
     top: 43px;
     background-color: #333333;
-    right: calc(15% + 13px);
+    right: calc(20% + 11px);
     z-index: 9999;
     padding: 8px 0 10px 20px;
     border-radius: 0 0 0 20px;
+    /*opacity: 0;
+    transition: opacity 0.5s ease-in-out;*/
 }
 
 .text_link {
@@ -141,6 +158,36 @@ iframe.content {
 
 .menu>li>a.enlace:before{
     background-image: none;
+}
+
+.slider {
+    position: relative;
+    max-width: 600px;
+    margin: auto;
+    overflow: hidden;
+}
+.slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+.slides img {
+    width: 100%;
+    border: 0;
+}
+.buttons {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+}
+.buttons button {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 420px) {
