@@ -123,19 +123,22 @@ export class FootMobController {
   }
 
   view = async (req, res) => {
+    const base_url = "https://www.fotmob.com/"
     let { url } = req.body
     const data = {}
 
     if(url){
-        try {
-            const response = await this.footMob.getRequestPage(url)
-            data.url = response
-        } catch (error) {
-            console.error('Error:', error)
-        }
-    } else {
-        const base_url = "https://www.fotmob.com/"
+      if (!url.includes('http:') && !url.includes('https:')) {
+        url = base_url + url
+      }
 
+      try {
+          const response = await this.footMob.getRequestPage(url)
+          data.url = response
+      } catch (error) {
+          console.error('Error:', error)
+      }
+    } else {
         try {
             this.footMob.setFunction('trendingnews')
 
@@ -146,14 +149,14 @@ export class FootMobController {
             for (const news of resp) {
                 let url = news.page.url
 
-                if (!url.includes('http') && !url.includes('https')) {
+                if (!url.includes('http:') && !url.includes('https:')) {
                     url = base_url + url
                 }
 
                 try {
                     const response = await this.footMob.getRequestPage(url)
                     data.urls.push(response)
-                    console.log(response)
+                    //console.log(response)
                     if(!count)
                       data.url = response
                     count++
@@ -217,58 +220,60 @@ export class FootMobController {
         // Obtener el nombre del partido
         const linkText = item.querySelector('a').textContent.trim()
         // Eliminar el texto de la hora del nombre del partido
-        match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
-        match.time = item.querySelector('span.t').textContent.trim()
+        if(item.querySelector('span.t')){
+          match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
+          match.time = item.querySelector('span.t').textContent.trim()
+          
+          //matches_today.push(match.name)
 
-        //matches_today.push(match.name)
+          /*
+          let name = match.name
+          
+          const match_today = MatchModel.getAll({ name })
+          const today = this.getDateToday()
 
-        /*
-        let name = match.name
-        
-        const match_today = MatchModel.getAll({ name })
-        const today = this.getDateToday()
-
-        if(match_today.length > 0 && match_today[0].date !== today){
-          //retornar vacio
-          data.matches = []
-          break
-        }
-        else if (match_today.length == 0 && index == 0){
-          const input = []
-          input.name = name
-          input.date = today
-
-          MatchModel.deleteAll()
-
-          const newmatch = MatchModel.create({ input: input })
-          console.log(newmatch)
-        }
-        else{
-          console.log(match_today)
-          console.log('longitud:' + match_today.length)
-        }*/
-        
-        match.channels = []
-        // Obtener los canales de transmisión del partido
-        const subItems = item.querySelectorAll('ul li.subitem1')
-        subItems.forEach(subItem => {
-          const channel = []
-          // Obtener la URL del canal de transmisión
-          let url_chanel = subItem.querySelector('a').getAttribute('href')
-
-          if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
-            url_chanel = base_url + url_chanel
+          if(match_today.length > 0 && match_today[0].date !== today){
+            //retornar vacio
+            data.matches = []
+            break
           }
+          else if (match_today.length == 0 && index == 0){
+            const input = []
+            input.name = name
+            input.date = today
 
-          channel.url = url_chanel
-          // Obtener el nombre del canal de transmisión
-          channel.name = subItem.querySelector('a').textContent.trim()
-          // Agregar el canal al arreglo de canales del partido
-          match.channels.push(channel)
-        })
+            MatchModel.deleteAll()
 
-        data.matches.push(match)
-        // index++
+            const newmatch = MatchModel.create({ input: input })
+            console.log(newmatch)
+          }
+          else{
+            console.log(match_today)
+            console.log('longitud:' + match_today.length)
+          }*/
+          
+          match.channels = []
+          // Obtener los canales de transmisión del partido
+          const subItems = item.querySelectorAll('ul li.subitem1')
+          subItems.forEach(subItem => {
+            const channel = []
+            // Obtener la URL del canal de transmisión
+            let url_chanel = subItem.querySelector('a').getAttribute('href')
+
+            if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
+              url_chanel = base_url + url_chanel
+            }
+
+            channel.url = url_chanel
+            // Obtener el nombre del canal de transmisión
+            channel.name = subItem.querySelector('a').textContent.trim()
+            // Agregar el canal al arreglo de canales del partido
+            match.channels.push(channel)
+          })
+
+          data.matches.push(match)
+          // index++
+        }
       }
 
       const url_pe = 'https://futbollibre.pe/agenda.json'
@@ -276,7 +281,7 @@ export class FootMobController {
 
       const resp_pe = await this.footMob.getRequestPageJson(url_pe)
 
-      console.log(resp_pe)
+      //console.log(resp_pe)
       let find = 0
       if(resp_pe && resp_pe.data){
         resp_pe.data.sort((a, b) => {
@@ -331,12 +336,13 @@ export class FootMobController {
   }
 
   news = async (req, res) => {
+    const { lang } = req.params
     
+    this.footMob.setLang(lang)
     this.footMob.setFunction('trendingnews')
 
     this.footMob.getRequest()
       .then(data => {
-        //console.log(data)
         return res.json({ result: data })
       })
       .catch(error => {

@@ -10,9 +10,9 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.post('/view', footMobController.view)
   footmobRouter.post('/', footMobController.index)
   footmobRouter.get('/', footMobController.matches)
-  footmobRouter.get('/news', footMobController.news)
-  footmobRouter.get('/views', footMobController.view)
-  footmobRouter.get('/matches', footMobController.matches)
+  footmobRouter.get('/views/:lang?', footMobController.view)
+  footmobRouter.get('/news/:lang?', footMobController.news)
+  footmobRouter.get('/matches/:lang?', footMobController.matches)
   footmobRouter.get('/leagues/:lang', footMobController.leagues)
 
   return footmobRouter

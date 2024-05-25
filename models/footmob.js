@@ -53,6 +53,7 @@ export class FootMobModel {
     try {
       // console.log(fecha)
       const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
+      //console.log(url)
       // Hacer la solicitud HTTP
       const response = await fetch(url, this.requestOptions)
 
@@ -74,6 +75,7 @@ export class FootMobModel {
 
   getRequestPage = async (url) => {
     try {
+      console.log(url)
       // Hacer la solicitud HTTP
       const response = await fetch(url)
 

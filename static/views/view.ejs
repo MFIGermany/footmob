@@ -64,10 +64,9 @@
         iframe.onload = function() {
             setTimeout(function() {
                 var url = '<%= data.url %>';
-                //url = "https://as.com/futbol/primera/palo-para-el-barcelona-dest-se-rompe-el-cruzado-n/";
                 
                 console.log(url);
-                if (url.includes('https://as.com/')) {
+                if (url.includes('as.com') || url.includes('fotmob.com')) {
                     window.location.href = '<%= data.url %>';
                 }
             }, 100);

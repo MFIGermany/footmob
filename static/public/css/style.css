@@ -191,7 +191,13 @@ iframe.content {
 }
 
 @media only screen and (max-width: 420px) {
-    .extension {
-      display: none;
+    #left-column, #right-column, .extension {
+        display: none;
+    }
+    #left-column, #right-column {
+        width: 0;
+    }
+    #center-column {
+        width: 100% !important;
     }
   }
