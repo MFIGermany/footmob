@@ -153,8 +153,8 @@
                 // Sumar las horas especificadas
                 horaInicial.setHours(horaInicial.getHours() + diferencia);
 
-                // Obtener la hora sumada
-                var horaFormateada = horaInicial.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                // Obtener la hora sumada en formato de 24 horas
+                var horaFormateada = horaInicial.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
 
                 return horaFormateada;
             } catch (error) {
