@@ -36,8 +36,26 @@ export class FootMobController {
       'Belgium': 'Bélgica',
       'Slovakia': 'Eslovaquia',
       'Luxembourg': 'Luxemburgo',
-      'Turkiye': 'Turquía',
-      'Czechia': 'Chequia'
+      'Turkiye': 'Turquía',      
+      'Czechia': 'Chequia',
+      'Belarus': 'Bielorrusia',
+      'Russia': 'Rusia',
+      'Cyprus': 'Chipre',
+      'Moldova': 'Moldavia',
+      'Latvia': 'Letonia',
+      'Lithuania': 'Lituania',
+      'Faroe Islands': 'Islas Feroe',
+      'Northern Ireland': 'Irlanda del Norte',
+      'Bosnia and Herzegovina': 'Bosnia y Herzegovina',
+      'North Macedonia': 'Macedonia del Norte',
+      'Kazakhstan': 'Kazajistán',
+      'Azerbaijan': 'Azerbaiyán',
+      'USA': 'Estados Unidos',
+      'Ireland': 'Irlanda',
+      'Finland': 'Finlandia',
+      'Iceland': 'Islandia',
+      'Greece': 'Grecia',
+      'Wales': 'Gales'
     };
 
     return countries[name] || name
