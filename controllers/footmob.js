@@ -35,6 +35,7 @@ export class FootMobController {
       'Ukraine': 'Ucrania',
       'Belgium': 'Bélgica',
       'Slovakia': 'Eslovaquia',
+      'Luxembourg': 'Luxemburgo',
       'Turkiye': 'Turquía',
       'Czechia': 'Chequia'
     };
