@@ -39,6 +39,10 @@ export class FootMobModel {
     this.lang = lg
   }
 
+  getLang = () => {
+    return this.lang
+  }
+
   getAll = ({ name }) => {
     if (name) {
       return leagues.filter(

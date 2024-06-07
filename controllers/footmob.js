@@ -15,50 +15,54 @@ export class FootMobController {
   }
 
   getCountry = (name) => {
-    let countries = {
-      'Germany': 'Alemania',
-      'Scotland': 'Escocia',
-      'Hungary': 'Hungría',
-      'Switzerland': 'Suiza',
-      'Sweden': 'Suecia',
-      'Spain': 'España',
-      'Norway': 'Noruega',
-      'Croatia': 'Croacia',
-      'Italy': 'Italia',
-      'Slovenia': 'Eslovenia',
-      'Poland': 'Polonia',
-      'Denmark': 'Dinamarca',
-      'England': 'Inglaterra',
-      'Netherlands': 'Países Bajos',
-      'France': 'Francia',
-      'Romania': 'Rumania',
-      'Ukraine': 'Ucrania',
-      'Belgium': 'Bélgica',
-      'Slovakia': 'Eslovaquia',
-      'Luxembourg': 'Luxemburgo',
-      'Turkiye': 'Turquía',      
-      'Czechia': 'Chequia',
-      'Belarus': 'Bielorrusia',
-      'Russia': 'Rusia',
-      'Cyprus': 'Chipre',
-      'Moldova': 'Moldavia',
-      'Latvia': 'Letonia',
-      'Lithuania': 'Lituania',
-      'Faroe Islands': 'Islas Feroe',
-      'Northern Ireland': 'Irlanda del Norte',
-      'Bosnia and Herzegovina': 'Bosnia y Herzegovina',
-      'North Macedonia': 'Macedonia del Norte',
-      'Kazakhstan': 'Kazajistán',
-      'Azerbaijan': 'Azerbaiyán',
-      'USA': 'Estados Unidos',
-      'Ireland': 'Irlanda',
-      'Finland': 'Finlandia',
-      'Iceland': 'Islandia',
-      'Greece': 'Grecia',
-      'Wales': 'Gales'
-    };
+    if(this.footMob.getLang() === 'es'){
+      let countries = {
+        'Germany': 'Alemania',
+        'Scotland': 'Escocia',
+        'Hungary': 'Hungría',
+        'Switzerland': 'Suiza',
+        'Sweden': 'Suecia',
+        'Spain': 'España',
+        'Norway': 'Noruega',
+        'Croatia': 'Croacia',
+        'Italy': 'Italia',
+        'Slovenia': 'Eslovenia',
+        'Poland': 'Polonia',
+        'Denmark': 'Dinamarca',
+        'England': 'Inglaterra',
+        'Netherlands': 'Países Bajos',
+        'France': 'Francia',
+        'Romania': 'Rumania',
+        'Ukraine': 'Ucrania',
+        'Belgium': 'Bélgica',
+        'Slovakia': 'Eslovaquia',
+        'Luxembourg': 'Luxemburgo',
+        'Turkiye': 'Turquía',      
+        'Czechia': 'Chequia',
+        'Belarus': 'Bielorrusia',
+        'Russia': 'Rusia',
+        'Cyprus': 'Chipre',
+        'Moldova': 'Moldavia',
+        'Latvia': 'Letonia',
+        'Lithuania': 'Lituania',
+        'Faroe Islands': 'Islas Feroe',
+        'Northern Ireland': 'Irlanda del Norte',
+        'Bosnia and Herzegovina': 'Bosnia y Herzegovina',
+        'North Macedonia': 'Macedonia del Norte',
+        'Kazakhstan': 'Kazajistán',
+        'Azerbaijan': 'Azerbaiyán',
+        'USA': 'Estados Unidos',
+        'Ireland': 'Irlanda',
+        'Finland': 'Finlandia',
+        'Iceland': 'Islandia',
+        'Greece': 'Grecia',
+        'Wales': 'Gales'
+      };
 
-    return countries[name] || name
+      return countries[name] || name
+    }
+
+    return name
   }
   
   index = async (req, res) => {
@@ -218,7 +222,7 @@ export class FootMobController {
   }
 
   matches = async (req, res) => {
-    const base_urlPE = "https://futbollibre.pe/"
+    const base_urlPE = "https://futbollibretv.pe/"
     const base_url = "https://www.elitegoltv.org/"
     const data = {}
 
@@ -297,8 +301,8 @@ export class FootMobController {
         }
       }
 
-      const url_pe = 'https://futbollibre.pe/agenda.json'
-      const url_img = 'https://img.futbollibre.pe'
+      const url_pe = 'https://futbollibretv.pe/agenda.json'
+      const url_img = 'https://img.futbollibretv.pe'
 
       const resp_pe = await this.footMob.getRequestPageJson(url_pe)
 
