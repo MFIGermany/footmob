@@ -74,7 +74,7 @@ export class FootMobController {
 
     checks.forEach((name) => { 
       let league = this.footMob.getAll({name})
-      if(league)
+      if(league.length)
         checks_ids.push(league[0].id)
     })
 
@@ -85,9 +85,9 @@ export class FootMobController {
         // console.log('Datos recibidos:', data)
         
         const leagues = {}
-        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT']
+        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT', 'BRA', 'CHI', 'ARG']
         const favorites = ['Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1']
-        const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png' }
+        const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png', 'BRA': 'bra.png', 'CHI': 'chi.png', 'ARG': 'arg.png' }
         const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America', 'Copa Libertadores']
         
         // console.log(data.date)

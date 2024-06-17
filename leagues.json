@@ -35,5 +35,14 @@
     },{
         "id": 45,
         "name": "Copa Libertadores"
+    },{
+        "id": 112,
+        "name": "Argentina: Liga Profesional"
+    },{
+        "id": 268,
+        "name": "Brazil: Serie A"
+    },{
+        "id": 273,
+        "name": "Chile: Primera Division"
     }
 ]
