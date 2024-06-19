@@ -368,7 +368,20 @@ export class FootMobController {
 
     this.footMob.getRequest()
       .then(data => {
-        return res.json({ result: data })
+        if(data.length)
+          return res.json({ result: data })
+        else{
+          console.log('entre')
+          this.footMob.setFunction('worldnews')
+
+          this.footMob.getRequest()
+            .then(data => {
+                return res.json({ result: data })
+            })
+            .catch(error => {
+              console.error('Error:', error)
+            })
+        }
       })
       .catch(error => {
         console.error('Error:', error)
