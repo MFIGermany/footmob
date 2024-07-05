@@ -63,6 +63,7 @@ export class FootMobModel {
 
       // Verificar si la respuesta fue exitosa
       if (!response.ok) {
+        console.log(url)
         throw new Error(`HTTP error! Status: ${response.status}`)
       }
 
@@ -131,10 +132,10 @@ export class FootMobModel {
     }
   }
 
-  getMatches = async () => {
+  getMatches = async (url) => {
     try {
 
-      let url = "https://www.elitegoltv.org/home.php"
+      //let url = "https://www.elitegoltv.org/home.php"
       // Hacer la solicitud HTTP
       const response = await fetch(url)
 
