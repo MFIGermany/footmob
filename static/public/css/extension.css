@@ -1,0 +1,49 @@
+.KgGEHd {
+    align-items: center;
+    color: inherit;
+    display: flex;
+    margin-bottom: 16px;
+}
+.rBxtY {
+    border-radius: 8px;
+    height: 60px;
+    margin-right: 16px;
+    width: 60px;
+}
+.Pa2dE {
+    font-family: "Google Sans";
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 2.5rem;
+    font-weight: 700;
+    line-height: 41px;
+    margin: initial;
+}
+.aboutContainer {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+}
+.aboutContainer h1, .aboutContainer p {
+    padding-right: 5px;
+    margin: 0;
+}
+.aboutContainer h2 {
+    color: #333;
+    margin-bottom: 5px;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-right: 10px;
+}
+li {
+    margin-bottom: 5px;
+}
+section {
+    margin-bottom: 20px;
+}

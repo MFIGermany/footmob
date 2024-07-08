@@ -7,9 +7,19 @@ body {
     background-color: #f0f0f0;
 }
 
+.container-header{
+    max-width: 1300px !important;
+}
+
+a:hover, .navbar-brand:hover{
+    color: #1C74E9;
+    text-decoration: none !important;
+}
+
 #container {
     display: flex;
-    min-height: 580px;
+    margin-top: 61px;
+    min-height: 880px;
     justify-content: center;
 }
 
@@ -200,4 +210,4 @@ iframe.content {
     #center-column {
         width: 100% !important;
     }
-  }
+  } 

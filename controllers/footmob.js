@@ -394,7 +394,7 @@ export class FootMobController {
       //if(!find)
         //data.matches = []
       
-      res.render('matches', { data: data })
+      res.render('index', { data: data })
     } catch (error) {
         console.error('Error:', error)
     }
@@ -408,11 +408,21 @@ export class FootMobController {
     return res.json({ result: list_leagues })
   }
 
+  trendingnews = async (req, res) => {
+    const data = {}
+    res.render('news', { data: data })
+  }
+
+  extension = async (req, res) => {
+    const data = {}
+    res.render('extension', { data: data })
+  }
+
   news = async (req, res) => {
     const { lang } = req.params
     
     this.footMob.setLang(lang)
-    this.footMob.setFunction('trendingnews')
+      this.footMob.setFunction('trendingnews')
 
     this.footMob.getRequest()
       .then(data => {
@@ -434,6 +444,5 @@ export class FootMobController {
       .catch(error => {
         console.error('Error:', error)
       })
-  }
-
+    }
 }
