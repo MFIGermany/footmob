@@ -93,7 +93,7 @@
         };
 
         function sendForm(id, url) {
-            const url_view = "http://localhost:3001/footlive/view";
+            const url_view = "https://www.football-live.lol/footlive/view";
             let myform = document.getElementById(id);
 
             if (!myform || myform.length == 0) {
@@ -269,7 +269,7 @@
 
         function getNews(){
             actionData = {};	
-            const url = "http://localhost:3001/footlive/news/es";
+            const url = "https://www.football-live.lol/footlive/news/es";
             
             getCall('GET', url, actionData);
         }
