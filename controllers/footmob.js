@@ -14,6 +14,13 @@ export class FootMobController {
     return typeof input === 'string'
   }
 
+  features = (req, res) => {
+    const data = {}
+    data.transfer = 1
+
+    return res.json({ result: data })
+  }
+
   getCountry = (name) => {
     if(this.footMob.getLang() === 'es'){
       let countries = {

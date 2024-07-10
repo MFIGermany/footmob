@@ -10,6 +10,7 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.post('/view', footMobController.view)
   footmobRouter.post('/', footMobController.index)
   footmobRouter.get('/', footMobController.matches)
+  footmobRouter.get('/features', footMobController.features)
   footmobRouter.get('/views/:lang?', footMobController.view)
   footmobRouter.get('/news/:lang?', footMobController.news)
   footmobRouter.get('/extension', footMobController.extension)
