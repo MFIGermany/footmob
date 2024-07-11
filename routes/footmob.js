@@ -13,6 +13,7 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.get('/features', footMobController.features)
   footmobRouter.get('/views/:lang?', footMobController.view)
   footmobRouter.get('/news/:lang?', footMobController.news)
+  footmobRouter.get('/transfers', footMobController.transfers)
   footmobRouter.get('/extension', footMobController.extension)
   footmobRouter.get('/leagues/:lang', footMobController.leagues)
   footmobRouter.get('/matches/:lang?', footMobController.matches)

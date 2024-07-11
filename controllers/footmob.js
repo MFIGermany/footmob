@@ -407,6 +407,14 @@ export class FootMobController {
     }
   }
 
+  transfers = async (req, res) => {
+    const url = 'https://www.fotmob.com/api/transfers'
+
+    const resp = await this.footMob.getRequestPageJson(url)
+
+    return res.json({ result: resp })
+  }
+
   leagues = async (req, res) => {
     const { lang } = req.params
     
