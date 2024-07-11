@@ -16,7 +16,7 @@ export class FootMobController {
 
   features = (req, res) => {
     const data = {}
-    data.transfer = process.env.TRANSFER || 1
+    data.transfer = process.env.TRANSFER !== undefined ? Number(process.env.TRANSFER) : 1
 
     return res.json({ result: data })
   }
