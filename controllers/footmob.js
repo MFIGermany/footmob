@@ -79,14 +79,17 @@ export class FootMobController {
     let checks_ids = []
     let { fecha, checks } = req.body
 
+    console.log(checks)
     if (this.isString(checks))
       checks = checks.split(',')
 
     checks.forEach((name) => { 
+      console.log(name)
       let league = this.footMob.getAll({name})
+      console.log(league)
       if(league.length)
         checks_ids.push(league[0].id)
-    })
+    })    
 
     this.footMob.setFunction('matches')
 
