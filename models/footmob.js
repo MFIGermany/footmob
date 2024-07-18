@@ -127,8 +127,7 @@ export class FootMobModel {
       return response.json()
     } catch (error) {
       // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error)
-      throw error
+      throw new Error('Error en la solicitud: '. error)
     }
   }
 

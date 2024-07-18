@@ -359,46 +359,56 @@ export class FootMobController {
         }
       }
 
-      const url_pe = 'https://futbollibretv.pe/agenda.json'
-      const url_img = 'https://img.futbollibretv.pe'
+      try {
+        const url_pe = 'https://futbollibretv.pe/agenda.json'
+        const url_img = 'https://img.futbollibretv.pe'
+        /*
+        const url_pe = 'https://futbollibrehd.pe/agenda.json'
+        const url_img = 'https://img.futbollibrehd.pe'
+        */
 
-      const resp_pe = await this.footMob.getRequestPageJson(url_pe)
+        const resp_pe = await this.footMob.getRequestPageJson(url_pe)
 
-      //console.log(resp_pe)
-      let find = 0
-      if(resp_pe && resp_pe.data){
-        resp_pe.data.sort((a, b) => {
-          let dateA = this.convertToDate(a)
-          let dateB = this.convertToDate(b)
-          return dateA - dateB
-        })
-        
-        resp_pe.data.forEach(async (item) => {
-          const match = []
-          
-          match.name = item.attributes.diary_description.replace('vs.', 'vs')
-          match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
-          match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
-
-          //if(matches_today.includes(match.name))
-            //find = 1
-
-          match.channels = []
-
-          item.attributes.embeds.data.forEach(subItem => {
-            const channel = []
-
-            let url_chanel = subItem.attributes.embed_iframe
-
-            if (url_chanel && url_chanel.includes('embed')) {
-              channel.name = subItem.attributes.embed_name
-              channel.url = base_urlPE + url_chanel
-              match.channels.push(channel)
-            }
+        //console.log(resp_pe)
+        let find = 0
+        if(resp_pe && resp_pe.data){
+          resp_pe.data.sort((a, b) => {
+            let dateA = this.convertToDate(a)
+            let dateB = this.convertToDate(b)
+            return dateA - dateB
           })
+          
+          resp_pe.data.forEach(async (item) => {
+            const match = []
+            
+            match.name = item.attributes.diary_description.replace('vs.', 'vs')
+            match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
+            match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
 
-          data.matchesPE.push(match)
-        })
+            //if(matches_today.includes(match.name))
+              //find = 1
+
+            match.channels = []
+
+            item.attributes.embeds.data.forEach(subItem => {
+              const channel = []
+
+              let url_chanel = subItem.attributes.embed_iframe
+
+              if (url_chanel && url_chanel.includes('embed')) {
+                channel.name = subItem.attributes.embed_name
+                channel.url = base_urlPE + url_chanel
+                match.channels.push(channel)
+              }
+            })
+
+            data.matchesPE.push(match)
+          })
+        }
+      }
+      catch (error) {
+        // Manejo del error
+        console.error('An error occurred');
       }
 
       //if(!find)
