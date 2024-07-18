@@ -360,8 +360,8 @@ export class FootMobController {
       }
 
       try {
-        const url_pe = 'https://futbollibretv.pe/agenda.json'
-        const url_img = 'https://img.futbollibretv.pe'
+        const url_pe = 'https://futbollibrehd.pe/agenda.json'
+        const url_img = 'https://admin.futbollibrehd.pe'
         /*
         const url_pe = 'https://futbollibrehd.pe/agenda.json'
         const url_img = 'https://img.futbollibrehd.pe'
