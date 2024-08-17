@@ -381,28 +381,30 @@ export class FootMobController {
           resp_pe.data.forEach(async (item) => {
             const match = []
             
-            match.name = item.attributes.diary_description.replace('vs.', 'vs')
-            match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
-            match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
+            if(item.attributes.country.data && item.attributes.country.data.attributes){
+              match.name = item.attributes.diary_description.replace('vs.', 'vs')
+              match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
+              match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
 
-            //if(matches_today.includes(match.name))
-              //find = 1
+              //if(matches_today.includes(match.name))
+                //find = 1
 
-            match.channels = []
+              match.channels = []
 
-            item.attributes.embeds.data.forEach(subItem => {
-              const channel = []
+              item.attributes.embeds.data.forEach(subItem => {
+                const channel = []
 
-              let url_chanel = subItem.attributes.embed_iframe
+                let url_chanel = subItem.attributes.embed_iframe
 
-              if (url_chanel && url_chanel.includes('embed')) {
-                channel.name = subItem.attributes.embed_name
-                channel.url = base_urlPE + url_chanel
-                match.channels.push(channel)
-              }
-            })
+                if (url_chanel && url_chanel.includes('embed')) {
+                  channel.name = subItem.attributes.embed_name
+                  channel.url = base_urlPE + url_chanel
+                  match.channels.push(channel)
+                }
+              })
 
-            data.matchesPE.push(match)
+              data.matchesPE.push(match)
+            }
           })
         }
       }
