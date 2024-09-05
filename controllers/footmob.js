@@ -79,14 +79,14 @@ export class FootMobController {
     let checks_ids = []
     let { fecha, checks } = req.body
 
-    console.log(checks)
+    //console.log(checks)
     if (this.isString(checks))
       checks = checks.split(',')
 
     checks.forEach((name) => { 
-      console.log(name)
+      //console.log(name)
       let league = this.footMob.getAll({name})
-      console.log(league)
+      //console.log(league)
       if(league.length)
         checks_ids.push(league[0].id)
     })    
@@ -98,14 +98,21 @@ export class FootMobController {
         // console.log('Datos recibidos:', data)
         
         const leagues = {}
+        const interns = ['UEFA Nations League', 'World Cup Qualification']
         const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT', 'BRA', 'CHI', 'ARG']
         const favorites = ['Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1']
         const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png', 'BRA': 'bra.png', 'CHI': 'chi.png', 'ARG': 'arg.png' }
         const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America', 'Copa Libertadores']
         
         // console.log(data.date)
-        data.leagues.forEach(async (league) => {                    
-          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode))) {
+        data.leagues.forEach(async (league) => {
+          let find_event = false
+          interns.forEach((event) =>{
+            if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
+              find_event = true
+            }
+          })
+          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode)) || find_event) {
             let show = true
             if(events.includes(league.name)){              
               let event_name = league.name
