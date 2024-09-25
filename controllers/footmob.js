@@ -255,83 +255,13 @@ export class FootMobController {
 
       const response = await this.footMob.getMatches(base_url + 'home.php')
       
-      // Obtener todos los elementos li dentro del ul
-      const menuItems = response.querySelectorAll('ul.menu > li')
-      
-      // Iterar sobre los elementos li e imprimir su contenido
-      // let index = 0
-      for (var item of menuItems) {
-        const match = []
-        
-        match.country = item.className
-        // Obtener el nombre del partido
-        const linkText = item.querySelector('a').textContent.trim()
-        // Eliminar el texto de la hora del nombre del partido
-        if(item.querySelector('span.t')){
-          match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
-          match.time = item.querySelector('span.t').textContent.trim()
-          
-          //matches_today.push(match.name)
-
-          /*
-          let name = match.name
-          
-          const match_today = MatchModel.getAll({ name })
-          const today = this.getDateToday()
-
-          if(match_today.length > 0 && match_today[0].date !== today){
-            //retornar vacio
-            data.matches = []
-            break
-          }
-          else if (match_today.length == 0 && index == 0){
-            const input = []
-            input.name = name
-            input.date = today
-
-            MatchModel.deleteAll()
-
-            const newmatch = MatchModel.create({ input: input })
-            console.log(newmatch)
-          }
-          else{
-            console.log(match_today)
-            console.log('longitud:' + match_today.length)
-          }*/
-          
-          match.channels = []
-          // Obtener los canales de transmisión del partido
-          const subItems = item.querySelectorAll('ul li.subitem1')
-          subItems.forEach(subItem => {
-            const channel = []
-            // Obtener la URL del canal de transmisión
-            let url_chanel = subItem.querySelector('a').getAttribute('href')
-
-            if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
-              url_chanel = base_url + url_chanel
-            }
-
-            channel.url = url_chanel
-            // Obtener el nombre del canal de transmisión
-            channel.name = subItem.querySelector('a').textContent.trim()
-            // Agregar el canal al arreglo de canales del partido
-            match.channels.push(channel)
-          })
-
-          data.matches.push(match)
-          // index++
-        }
-      }
-
-      if(data.matches.length == 0){
-        const responseTR = await this.footMob.getMatches(base_urlTR)
-        
+      if(response){
         // Obtener todos los elementos li dentro del ul
-        const menuItemsTR = responseTR.querySelectorAll('ul.menu > li')
+        const menuItems = response.querySelectorAll('ul.menu > li')
         
         // Iterar sobre los elementos li e imprimir su contenido
         // let index = 0
-        for (var item of menuItemsTR) {
+        for (var item of menuItems) {
           const match = []
           
           match.country = item.className
@@ -341,6 +271,34 @@ export class FootMobController {
           if(item.querySelector('span.t')){
             match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
             match.time = item.querySelector('span.t').textContent.trim()
+            
+            //matches_today.push(match.name)
+
+            /*
+            let name = match.name
+            
+            const match_today = MatchModel.getAll({ name })
+            const today = this.getDateToday()
+
+            if(match_today.length > 0 && match_today[0].date !== today){
+              //retornar vacio
+              data.matches = []
+              break
+            }
+            else if (match_today.length == 0 && index == 0){
+              const input = []
+              input.name = name
+              input.date = today
+
+              MatchModel.deleteAll()
+
+              const newmatch = MatchModel.create({ input: input })
+              console.log(newmatch)
+            }
+            else{
+              console.log(match_today)
+              console.log('longitud:' + match_today.length)
+            }*/
             
             match.channels = []
             // Obtener los canales de transmisión del partido
@@ -362,6 +320,54 @@ export class FootMobController {
             })
 
             data.matches.push(match)
+            // index++
+          }
+        }
+      }
+
+      console.log(data.matches.length)
+      if(data.matches.length == 0){
+        const responseTR = await this.footMob.getMatches(base_urlTR)
+        console.log(responseTR)
+
+        if(responseTR){
+          // Obtener todos los elementos li dentro del ul
+          const menuItemsTR = responseTR.querySelectorAll('ul.menu > li')
+          
+          // Iterar sobre los elementos li e imprimir su contenido
+          // let index = 0
+          for (var item of menuItemsTR) {
+            const match = []
+            
+            match.country = item.className
+            // Obtener el nombre del partido
+            const linkText = item.querySelector('a').textContent.trim()
+            // Eliminar el texto de la hora del nombre del partido
+            if(item.querySelector('span.t')){
+              match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
+              match.time = item.querySelector('span.t').textContent.trim()
+              
+              match.channels = []
+              // Obtener los canales de transmisión del partido
+              const subItems = item.querySelectorAll('ul li.subitem1')
+              subItems.forEach(subItem => {
+                const channel = []
+                // Obtener la URL del canal de transmisión
+                let url_chanel = subItem.querySelector('a').getAttribute('href')
+
+                if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
+                  url_chanel = base_url + url_chanel
+                }
+
+                channel.url = url_chanel
+                // Obtener el nombre del canal de transmisión
+                channel.name = subItem.querySelector('a').textContent.trim()
+                // Agregar el canal al arreglo de canales del partido
+                match.channels.push(channel)
+              })
+
+              data.matches.push(match)
+            }
           }
         }
       }

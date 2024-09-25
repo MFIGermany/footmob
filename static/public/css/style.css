@@ -106,12 +106,16 @@ iframe.content {
     border: 2px solid #9c88ffad;
     padding: 25px 30px 14px;
     width: 300px;
-    height: 60px;
+    height: 200px;
     margin: 100px auto;
     text-align: center;
     border-radius: 10px;
     position: absolute;
     left: calc(50% - 160px);
+}
+
+.wait-program h3{
+    color: #fff;
 }
 
 .extension {

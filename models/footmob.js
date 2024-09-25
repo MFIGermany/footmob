@@ -1,6 +1,8 @@
 import { readJSON } from '../utils.js'
 import fetch from 'node-fetch'
 import { JSDOM } from 'jsdom'
+import http from 'http'
+import https from 'https'
 
 const leagues = await readJSON('./leagues.json')
 
@@ -51,6 +53,32 @@ export class FootMobModel {
     }
 
     return leagues
+  }
+
+  checkSite = ({ url }) => {
+    if(url){
+      const client = url.startsWith('https') ? https : http
+    
+      const req = client.get(url, (res) => {
+        console.log(`Status Code: ${res.statusCode}`)
+        if (res.statusCode === 200) {
+          return true
+        } else {
+          return false
+        }
+        res.resume()
+      });
+    
+      req.on('error', (err) => {
+        return false
+      })
+    
+      req.setTimeout(5000, () => { // Tiempo de espera de 5 segundos
+        console.log('Request timed out')
+        req.abort()
+        return false
+      })
+    }
   }
 
   getRequest = async (fecha='') => {
@@ -133,34 +161,37 @@ export class FootMobModel {
 
   getMatches = async (url) => {
     try {
+      if(this.checkSite(url)){
+        //let url = "https://www.elitegoltv.org/home.php"
+        // Hacer la solicitud HTTP
+        const response = await fetch(url)
 
-      //let url = "https://www.elitegoltv.org/home.php"
-      // Hacer la solicitud HTTP
-      const response = await fetch(url)
+        // Verificar si la respuesta fue exitosa
+        if (!response.ok) {
+          return false
+          //throw new Error('Error al obtener la página')
+        }
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
-        throw new Error('Error al obtener la página')
+        // Leer el contenido HTML de la respuesta
+        const html = await response.text()
+
+        // Crear un objeto DOM simulado con jsdom
+        const dom = new JSDOM(html)
+
+        // Obtener el documento y el objeto window del DOM
+        const document = dom.window.document
+
+        // Buscar el elemento meta con el atributo name="canonicalUrl"
+        const menu = document.querySelector('ul.menu')
+
+        if (menu) {
+          return menu          
+        } else {
+            console.log('No se encontró ningún elemento <ul> con la clase "menu"')
+        }
       }
-
-      // Leer el contenido HTML de la respuesta
-      const html = await response.text()
-
-      // Crear un objeto DOM simulado con jsdom
-      const dom = new JSDOM(html)
-
-      // Obtener el documento y el objeto window del DOM
-      const document = dom.window.document
-
-      // Buscar el elemento meta con el atributo name="canonicalUrl"
-      const menu = document.querySelector('ul.menu')
-
-      if (menu) {
-        return menu          
-      } else {
-          console.log('No se encontró ningún elemento <ul> con la clase "menu"')
-      }
-
+      else
+        return false
     } catch (error) {
       // Manejar errores de la solicitud
       console.error('Error en la solicitud:', error)
