@@ -83,13 +83,14 @@ export class FootMobController {
     if (this.isString(checks))
       checks = checks.split(',')
 
+    //console.log(checks)
     checks.forEach((name) => { 
       //console.log(name)
       let league = this.footMob.getAll({name})
       //console.log(league)
       if(league.length)
         checks_ids.push(league[0].id)
-    })    
+    })
 
     this.footMob.setFunction('matches')
 
@@ -107,6 +108,7 @@ export class FootMobController {
         // console.log(data.date)
         data.leagues.forEach(async (league) => {
           let find_event = false
+          league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
           interns.forEach((event) =>{
             if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
               find_event = true
