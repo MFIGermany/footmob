@@ -19,6 +19,13 @@ export class FootMobModel {
       },
     }
 
+    this.requestOptionsPage = {
+      method: 'GET', // Método de solicitud (GET en este caso)
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }
+
     this.url = url
 
     // Por defecto el idioma español
@@ -136,7 +143,7 @@ export class FootMobModel {
   getRequestPageJson = async (url) => {
     try {
       // Hacer la solicitud HTTP
-      const response = await fetch(url)
+      const response = await fetch(url, this.requestOptionsPage)
 
       // Verificar si la respuesta fue exitosa
       if (!response.ok) {
