@@ -441,7 +441,7 @@ export class FootMobController {
   transfers = async (req, res) => {
     const url = 'https://www.fotmob.com/api/transfers'
 
-    const resp = await this.footMob.getRequestPageJson(url)
+    const resp = await this.footMob.getRequestPageJson(url, 1)
 
     return res.json({ result: resp })
   }
