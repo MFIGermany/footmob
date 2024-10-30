@@ -1,8 +1,6 @@
 import { readJSON } from '../utils.js'
 import fetch from 'node-fetch'
 import { JSDOM } from 'jsdom'
-import http from 'http'
-import https from 'https'
 
 const leagues = await readJSON('./leagues.json')
 
@@ -17,6 +15,7 @@ export class FootMobModel {
       method: 'GET', // Método de solicitud (GET en este caso)
       headers: {
         'Content-Type': 'application/json', // Tipo de contenido de la solicitud
+        'x-fm-req': 'eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2hlcz9kYXRlPTIwMjQxMDMwJnRpbWV6b25lPUFtZXJpY2ElMkZTYW9fUGF1bG8mY2NvZGUzPUNITCIsImNvZGUiOjE3MzAzMDIxMTU0OTF9LCJzaWduYXR1cmUiOiI3MUZEMEY5ODc1MEUxN0MzMjUxMzI3MDUwRUNCQzc3RSJ9'
       },
     }
 
