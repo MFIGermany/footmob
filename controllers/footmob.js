@@ -6,7 +6,7 @@ import list_leagues from '../leagues.json' assert { type: "json" }
 export class FootMobController {
   static footMob
 
-  constructor ({ url }) {    
+  constructor ({ url }) {
     this.footMob = new FootMobModel({ url })
   }
 

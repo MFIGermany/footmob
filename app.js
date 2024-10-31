@@ -1,10 +1,13 @@
 import { createFootMobRouter } from './routes/footmob.js'
+import { createUserRouter } from './routes/user.js'
 import express, { json } from 'express'
 import compression from 'compression'
 import cors from 'cors'
 import path from 'node:path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
+import methodOverride from 'method-override'
+import session from 'express-session'
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -15,6 +18,7 @@ dotenv.config({ path: './.env' })
 
 export const createApp = () => {
   const app = express()
+
   app.use(json())
   app.use(cors())
   app.use(compression())
@@ -25,12 +29,20 @@ export const createApp = () => {
   app.set('views', path.join(__dirname, './static/views'))
   app.set("view engine", "ejs")
 
+  // Middlewares
   // Para recibir los valores por POST
   app.use(express.urlencoded({extended: false}))
+  app.use(methodOverride('_method')) //posiblemente no lo use
+  app.use(session({
+    secret: 'footmobsecret',
+    resave: true,
+    saveUninitialized: true
+  }))
 
+  //Routes
   const URL = process.env.URL
-
   app.use('/footlive', createFootMobRouter({ url: URL }))
+  app.use('/footlive', createUserRouter())
 
   app.get('/', (req, res) => {
     res.redirect('/footlive')

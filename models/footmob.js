@@ -15,7 +15,7 @@ export class FootMobModel {
       method: 'GET', // Método de solicitud (GET en este caso)
       headers: {
         'Content-Type': 'application/json', // Tipo de contenido de la solicitud
-        'x-fm-req': 'eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2hlcz9kYXRlPTIwMjQxMDMwJnRpbWV6b25lPUFtZXJpY2ElMkZTYW9fUGF1bG8mY2NvZGUzPUNITCIsImNvZGUiOjE3MzAzMDIxMTU0OTF9LCJzaWduYXR1cmUiOiI3MUZEMEY5ODc1MEUxN0MzMjUxMzI3MDUwRUNCQzc3RSJ9'
+        'x-fm-req': 'eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2hlcz9kYXRlPTIwMjQxMDMxJnRpbWV6b25lPUFtZXJpY2ElMkZTYW9fUGF1bG8mY2NvZGUzPUJSQSIsImNvZGUiOjE3MzAzOTg3NDk1MzR9LCJzaWduYXR1cmUiOiI0QTVDNEFBNzlFQjIzQkE4NDRBOTMzRDM1N0FGMjQ0QSJ9'
       },
     }
 
