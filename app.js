@@ -1,4 +1,5 @@
 import { createFootMobRouter } from './routes/footmob.js'
+import { createPaypalRouter } from './routes/paypal.js'
 import { createUserRouter } from './routes/user.js'
 import express, { json } from 'express'
 import compression from 'compression'
@@ -42,6 +43,7 @@ export const createApp = () => {
   //Routes
   const URL = process.env.URL
   app.use('/footlive', createFootMobRouter({ url: URL }))
+  app.use('/footlive', createPaypalRouter())
   app.use('/footlive', createUserRouter())
 
   app.get('/', (req, res) => {

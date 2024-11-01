@@ -1,5 +1,6 @@
 import { FootMobModel } from '../models/footmob.js'
 // import { MatchModel } from '../models/match.js'
+import axios from 'axios'
 
 import list_leagues from '../leagues.json' assert { type: "json" }
 
@@ -490,5 +491,28 @@ export class FootMobController {
       .catch(error => {
         console.error('Error:', error)
       })
-    }
+  }
+
+  contribution = async (req, res) => {
+    const data = {}
+
+    const CLIENT = 'AYZ-00wqpvaRHSD-elMNEDTeSjNbacIBidhT3kzhIYn_l4pbcni_cIvz-lit6ZMRThMlt17nnno_7OIO'
+    const SECRET = 'EO0P4rGn2MeqNjaiD7qDghZ4VhiyARgqvZewX7zzT1dEitpnYe-gnts2pfTj6ImIxHKs_iY2BHf9kLFx'
+    const PAYPAL_API = 'https://api-m.sandbox.paypal.com' //htps://api-m.paypal.com
+    const auth = {user: CLIENT, pass: SECRET}
+
+    const url = 'https://www.paypal.com/donate/?hosted_button_id=3THN79EWQHK2E'
+
+    /*
+    try {
+      const response = await axios.get(url)
+      data.content_paypal = response.data
+      
+      res.render('contribution', { data: data })
+    } catch (error) {
+        console.error('Error al cargar la página externa:', error);
+        res.render('pagina', { content: 'No se pudo cargar el contenido' });
+    }*/
+    res.render('contribution', { data: data })
+  }
 }

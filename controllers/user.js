@@ -9,8 +9,9 @@ export class UserController {
     }
 
     singin = (req, res) => {
-        const data = 'Ingresando a la app'
-
+        const data = {}
+        data.success_msg = 'Probando mensaje'
+        
         res.render('forum', { data: data })
     }
 }
