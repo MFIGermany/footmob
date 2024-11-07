@@ -151,12 +151,16 @@ iframe.content {
 .channels{
     position: relative;
     text-align: center;
-    margin: 2px auto;
-    width: 120px;
+    margin: 5px auto;
+    width: 150px;
 }
 
 .channels a{
-    margin: 0 3px;
+    font-weight: bold;
+    margin: 3px;
+    padding: 3px 5px 4px;
+    border-radius: 4px;
+    background-color: #2768f5;
 }
 
 .imgtan {

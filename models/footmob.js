@@ -146,6 +146,7 @@ export class FootMobModel {
   getRequestPageJson = async (url, opt=0) => {
     try {
       // Hacer la solicitud HTTP
+      console.log(url)
       const response = await fetch(url, (opt) ? this.requestOptions : this.requestOptionsPage)
 
       // Verificar si la respuesta fue exitosa
