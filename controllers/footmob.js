@@ -259,7 +259,7 @@ export class FootMobController {
       const response = await this.footMob.getMatches(base_url + 'home.php')
       
       if(response){
-        console.log('entre')
+        //console.log('entre')
         // Obtener todos los elementos li dentro del ul
         const menuItems = response.querySelectorAll('ul.menu > li')
         
