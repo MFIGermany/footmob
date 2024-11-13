@@ -106,62 +106,63 @@ export class FootMobController {
         const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png', 'BRA': 'bra.png', 'CHI': 'chi.png', 'ARG': 'arg.png', 'USA': 'usa.png' }
         const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America', 'Copa Libertadores']
         
-        // console.log(data.date)
-        data.leagues.forEach(async (league) => {
-          let find_event = false
-          league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
-          interns.forEach((event) =>{
-            if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
-              find_event = true
+        if(data){
+          data.leagues.forEach(async (league) => {
+            let find_event = false
+            league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
+            interns.forEach((event) =>{
+              if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
+                find_event = true
+              }
+            })
+            if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode)) || find_event) {
+              let show = true
+              if(events.includes(league.name)){              
+                let event_name = league.name
+                show = false              
+
+                checks.forEach((check) => { 
+                  let find = event_name.includes(check)
+                  if(find){
+                    show = true
+                  }
+                })
+              }
+              else if(events.includes(league.parentLeagueName)){
+                let event_name = league.parentLeagueName
+                show = false
+                
+                checks.forEach((check) => { 
+                  let find = event_name.includes(check)
+                  if(find){
+                    show = true
+                  }
+                })
+              }
+
+              if(show){
+                leagues[league.name] = { flag: flags[league.ccode], matches: [] }
+                league.matches.forEach((match) => {
+                  leagues[league.name].matches.push({
+                    home: this.getCountry(match.home.name),
+                    homeid: match.home.id,
+                    scorehome: match.home.score,
+                    away: this.getCountry(match.away.name),
+                    awayid: match.away.id,
+                    scoreaway: match.away.score,
+                    started: match.status.started,
+                    finished: match.status.finished,
+                    reason: match.status.reason ? match.status.reason.short : undefined,
+                    time: match.status.liveTime ? match.status.liveTime.short : undefined,
+                    score: match.status.scoreStr ? match.status.scoreStr : undefined,
+                    start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
+                  })
+                })
+              }
             }
           })
-          if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode)) || find_event) {
-            let show = true
-            if(events.includes(league.name)){              
-              let event_name = league.name
-              show = false              
-
-              checks.forEach((check) => { 
-                let find = event_name.includes(check)
-                if(find){
-                  show = true
-                }
-              })
-            }
-            else if(events.includes(league.parentLeagueName)){
-              let event_name = league.parentLeagueName
-              show = false
-              
-              checks.forEach((check) => { 
-                let find = event_name.includes(check)
-                if(find){
-                  show = true
-                }
-              })
-            }
-
-            if(show){
-              leagues[league.name] = { flag: flags[league.ccode], matches: [] }
-              league.matches.forEach((match) => {
-                leagues[league.name].matches.push({
-                  home: this.getCountry(match.home.name),
-                  homeid: match.home.id,
-                  scorehome: match.home.score,
-                  away: this.getCountry(match.away.name),
-                  awayid: match.away.id,
-                  scoreaway: match.away.score,
-                  started: match.status.started,
-                  finished: match.status.finished,
-                  reason: match.status.reason ? match.status.reason.short : undefined,
-                  time: match.status.liveTime ? match.status.liveTime.short : undefined,
-                  score: match.status.scoreStr ? match.status.scoreStr : undefined,
-                  start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
-                })
-              })
-            }
-          }
-        })
-        //console.log(leagues)
+        }
+        console.log(leagues)
         return res.json({ result: leagues })
       })
       .catch(error => {

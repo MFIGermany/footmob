@@ -93,7 +93,8 @@ export class FootMobModel {
       // Verificar si la respuesta fue exitosa
       if (!response.ok) {
         console.log(url)
-        throw new Error(`HTTP error! Status: ${response.status}`)
+        console.log(response.status)
+        return false
       }
 
       // Convertir la respuesta a JSON
@@ -151,13 +152,15 @@ export class FootMobModel {
 
       // Verificar si la respuesta fue exitosa
       if (!response.ok) {
-        throw new Error('Error al obtener la página')
+        console.log('Error al obtener la página')
+        return false
       }
 
       return response.json()
     } catch (error) {
       // Manejar errores de la solicitud
-      throw new Error('Error en la solicitud: '. error)
+      console.log(error)
+      return false
     }
   }
 
