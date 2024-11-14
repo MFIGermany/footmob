@@ -1,6 +1,5 @@
 import { FootMobModel } from '../models/footmob.js'
 // import { MatchModel } from '../models/match.js'
-import axios from 'axios'
 
 import list_leagues from '../leagues.json' assert { type: "json" }
 
