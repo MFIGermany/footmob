@@ -18,7 +18,7 @@ export class FootMobModel {
       method: 'GET', // Método de solicitud (GET en este caso)
       headers: {
         'Content-Type': 'application/json', // Tipo de contenido de la solicitud
-        'x-fm-req': process.env.XFMREQ
+        'X-Mas': process.env.XFMREQ
       },
     }
 
