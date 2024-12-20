@@ -15,6 +15,7 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.get('/news/:lang?', footMobController.news)
   footmobRouter.get('/transfers', footMobController.transfers)
   footmobRouter.get('/extension', footMobController.extension)
+  footmobRouter.get('/monero', footMobController.monero)
   footmobRouter.get('/leagues/:lang', footMobController.leagues)
   footmobRouter.get('/matches/:lang?', footMobController.matches)
   footmobRouter.get('/trendingnews', footMobController.trendingnews)

@@ -16,9 +16,15 @@
     <link href="/css/header.css" rel="stylesheet" type="text/css">
     <link href="/css/style.css" rel="stylesheet" type="text/css">
     <link href="/css/matches.css" rel="stylesheet" type="text/css">
+    <% if(data.matchesRD.length > 0)  { %>
+        <link href="/css/rdhd.css" rel="stylesheet" type="text/css">
+    <% } %>
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-G2193Y7XNZ"></script>
+<% if (user) { %>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<% } %>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -27,36 +33,10 @@
   gtag('config', 'G-G2193Y7XNZ');
 </script>
 <body>
-    <header class="navbar navbar-expand-lg shadow-sm fixed-top">
-        <div class="container container-header">
-            <a href="/" class="navbar-brand">
-                <img class="logo" src="/img/logo.png" width="25" alt="football-live">
-                <span style="font-size:18px">football-live.lol</span>
-            </a>
-            <button class="navbar-toggler ms-auto" type="button" aria-label="btn-nav" data-bs-toggle="collapse" data-bs-target="#navbarCollapse2" aria-expanded="false">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" target="_blank" class="btn btn-info btn-sm fs-sm rounded order-lg-3 d-none d-lg-inline-flex">Descargar Extensión</a>
-            <nav id="navbarCollapse2" class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link selected">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/footlive/trendingnews" class="nav-link">Noticias</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/footlive/extension" class="nav-link">Nuestra Extensión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/footlive/contribution" class="nav-link">Contribución</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <%- include('partials/menu', { active: 'home' }) %>
     <div id="container" class="view_matches">        
         <div id="left-column">
+            <!--<div id="timer" style="font-size: 2em; font-weight: bold;"></div>-->
             <!-- Anuncios de visualización -->
             <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" aria-label="Descargue nuestra extensión" target="_blank">
                 <img id="mini" src="./img/miniatura.webp" alt="mini_footlive" style="width:100%;"/>
@@ -68,6 +48,7 @@
             <div class="channels">
                 <a id="list1" href="#" onclick="showChannels(1)" class="selected">Lista 1</a>
                 <a id="list2" href="#" onclick="showChannels(2)">Lista 2</a>
+                <!--<a id="list3" href="#" onclick="showChannels(3)">Lista 3</a>-->
             </div>
             <p class="usevpn">En caso de que su proveedor de internet limite el acceso a nuestros canales, le recomendamos utilizar un servicio VPN. No solo podrá acceder sin restricciones, también contribuirá a proteger su información personal.</p>
             <!--
@@ -79,7 +60,7 @@
             </div>-->
             <div id="channels1">
                 <% if(data.matchesPE.length > 0)  { %>
-                <ul class="menu">
+                <ul class="menu matchesPE">
                 <% for (let i = 0; i < data.matchesPE.length; i++) { %>
                     <li>
                         <a href="#" class="enlace"><%= data.matchesPE[i].name %><span class="t"><%= data.matchesPE[i].time %></span>
@@ -95,6 +76,21 @@
                     </li>
                 <% } %>
                 </ul>
+                <% } else if(data.matchesRD.length > 0)  { %>
+                    <ul class="menu matchesRD">
+                    <% for (let i = 0; i < data.matchesRD.length; i++) { %>
+                        <li class="<%= data.matchesRD[i].country %>">
+                            <a href="#"><%= data.matchesRD[i].name %><span class="t"><%= data.matchesRD[i].time %></span></a>
+                            <ul style="display: none;">
+                            <% for (let j = 0; j < data.matchesRD[i].channels.length; j++) { %>
+                                <li class="subitem1">
+                                    <a href="<%= data.matchesRD[i].channels[j].url %>" target="_blank"><%= data.matchesRD[i].channels[j].name %></a>
+                                </li>
+                            <% } %>
+                            </ul>
+                        </li>
+                    <% } %>
+                    </ul>
                 <% } else { %>
                     <div class="wait-program">
                         <h3>ESPERANDO CONFIRMACIÓN DE PARTIDOS PARA HOY</h3>
@@ -123,23 +119,32 @@
                 </div>
                 <% } %>
             </div>
+            <!--
+            <div id="channels3" class="invisible">
+                <% if(data.matches.length > 0)  { %>
+                <ul class="menu">
+                <% for (let i = 0; i < data.matches.length; i++) { %>
+                    <li class="<%= data.matches[i].country %>">
+                        <a href="#"><%= data.matches[i].name %><span class="t"><%= data.matches[i].time %></span></a>
+                        <ul style="display: none;">
+                            <% for (let j = 0; j < data.matches[i].channels.length; j++) { %>
+                                <li class="subitem1">
+                                    <a href="<%= data.matches[i].channels[j].url %>" target="_blank"><%= data.matches[i].channels[j].name %></a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </li>
+                <% } %>
+                </ul>
+                <% } else { %>
+                <div class="wait-program">
+                    <h3>ESPERANDO CONFIRMACIÓN DE PARTIDOS PARA HOY</h3>
+                </div>
+                <% } %>
+            </div>-->
         </div>
         <div id="right-column">
-            <!-- Anuncios de visualización -->
-            <div class="slider">
-                <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" aria-label="Descargue nuestra extensión" target="_blank">
-                    <div class="slides">
-                        <img src="./img/extension1.webp" alt="Partidos"/>
-                        <img src="./img/extension2.webp" alt="Ligas"/>
-                        <img src="./img/extension3.webp" alt="Noticias"/>
-                        <img src="./img/extension4.webp" alt="Acerca De"/>
-                    </div>
-                </a>
-                <div class="buttons">
-                    <button id="prev">❮</button>
-                    <button id="next">❯</button>
-                </div>
-            </div>
+            <%- include('partials/column-right') %>
             <!-- Anuncios de visualización -->            
             <div id="ads_right"></div>
         </div>
@@ -177,6 +182,7 @@
                 // Ajustar la hora del servidor según la zona horaria del cliente
                 var ajusteHorario = (diferenciaHorarioCliente < 0) ? -Math.abs(diferenciaHorarioCliente) / 60 : Math.abs(diferenciaHorarioCliente) / 60;
 
+                //var diferencia = Math.abs(22) - Math.abs(ajusteHorario);
                 var diferencia = Math.abs(5) - Math.abs(ajusteHorario);
                 
                 // Crear un objeto de fecha y hora para la hora inicial pasada como parámetro
@@ -218,35 +224,35 @@
         function showChannels(channel){
             const list_channel1 = document.getElementById('channels1');
             const list_channel2 = document.getElementById('channels2');
-            //const list_channel3 = document.getElementById('channels3');
+            const list_channel3 = document.getElementById('channels3');
             const list1 = document.getElementById('list1');
             const list2 = document.getElementById('list2');
-            //const list3 = document.getElementById('list3');
+            const list3 = document.getElementById('list3');
 
             if(channel == 1){
                 list_channel1.classList.remove('invisible');
                 list_channel2.classList.add('invisible');
-                //list_channel3.classList.add('invisible');
+                list_channel3.classList.add('invisible');
                 list1.classList.add('selected');
                 list2.classList.remove('selected');
-                //list3.classList.remove('selected');
+                list3.classList.remove('selected');
             }
             else if(channel == 2){
                 list_channel1.classList.add('invisible');
                 list_channel2.classList.remove('invisible');
-                //list_channel3.classList.add('invisible');
+                list_channel3.classList.add('invisible');
                 list1.classList.remove('selected');
                 list2.classList.add('selected');
-                //list3.classList.remove('selected');
+                list3.classList.remove('selected');
             }
-            /*else{
+            else{
                 list_channel1.classList.add('invisible');
                 list_channel2.classList.add('invisible');
                 list_channel3.classList.remove('invisible');
                 list1.classList.remove('selected');
                 list2.classList.remove('selected');
                 list3.classList.add('selected');
-            }*/
+            }
         }
 
         //Slides
@@ -301,6 +307,48 @@
                 renderIn: '#ads_right'
             });
         });
+    </script>
+    <script>
+        const TIMER_DURATION = 5 * 60 * 1000; // 5 minutos en milisegundos
+        const TIMER_KEY = 'timerEndTime'; // Clave para guardar el tiempo en localStorage
+
+        function startTimer(duration, display) {
+            const now = Date.now();
+            let endTime;
+
+            // Verificar si ya hay un tiempo guardado
+            const savedEndTime = localStorage.getItem(TIMER_KEY);
+            if (savedEndTime) {
+                endTime = parseInt(savedEndTime, 10);
+            } else {
+                endTime = now + duration;
+                localStorage.setItem(TIMER_KEY, endTime); // Guardar el tiempo final
+            }
+
+            function updateTimer() {
+                const remainingTime = endTime - Date.now();
+
+                if (remainingTime <= 0) {
+                // Timer completado
+                clearInterval(timerInterval);
+                localStorage.removeItem(TIMER_KEY); // Eliminar el valor al finalizar
+                display.textContent = "¡Tiempo completado! Puedes reclamar Monero.";
+                } else {
+                const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+                const seconds = Math.floor((remainingTime / 1000) % 60);
+                display.textContent = `${minutes}m ${seconds}s`;
+                }
+            }
+
+            // Actualizar el timer cada segundo
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Llamar inmediatamente al inicio
+        }
+
+        window.onload = () => {
+            const timerDisplay = document.getElementById("timer");
+            startTimer(TIMER_DURATION, timerDisplay);
+        };
     </script>
 </body>
 </html>

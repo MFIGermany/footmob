@@ -1,5 +1,4 @@
 import { createFootMobRouter } from './routes/footmob.js'
-import { createPaypalRouter } from './routes/paypal.js'
 import { createUserRouter } from './routes/user.js'
 import express, { json } from 'express'
 import compression from 'compression'
@@ -9,6 +8,9 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 import methodOverride from 'method-override'
 import session from 'express-session'
+
+import GoogleStrategy from 'passport-google-oauth20'
+import passport from 'passport'
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -40,11 +42,43 @@ export const createApp = () => {
     saveUninitialized: true
   }))
 
+  // Middleware para pasar usuario a todas las vistas
+  app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+  });
+  
+  // Initialize Passport
+  app.use(passport.initialize())
+
+  passport.use(
+    new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: '/auth/google/footlive',
+    },
+    function(accessToken, refreshToken, profile, done) {
+      done(null, profile)
+    }
+  ))
+  
+  // Serializar usuario
+  passport.serializeUser((user, done) => {
+    done(null, user)
+  })
+
+  // Deserializar usuario
+  passport.deserializeUser((user, done) => {
+    done(null, user)
+  })
+
+  // Rutas
+  app.use(createUserRouter())
+
   //Routes
   const URL = process.env.URL
   app.use('/footlive', createFootMobRouter({ url: URL }))
-  app.use('/footlive', createPaypalRouter())
-  app.use('/footlive', createUserRouter())
+  //app.use('/footlive', createUserRouter())
 
   app.get('/', (req, res) => {
     res.redirect('/footlive')

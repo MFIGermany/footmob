@@ -1,0 +1,48 @@
+<header class="navbar navbar-expand-lg shadow-sm fixed-top">
+    <div class="container container-header">
+        <a href="/" class="navbar-brand">
+            <img class="logo" src="/img/logo.png" width="25" alt="football-live">
+            <span style="font-size:18px">football-live.lol</span>
+        </a>
+        <button class="navbar-toggler ms-auto" type="button" aria-label="btn-nav" data-bs-toggle="collapse" data-bs-target="#navbarCollapse2" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!--<div class="menu">
+            <% if (user) { %>
+                <div class="dropdown">
+                    <span>Hola, <%= user.name %></span><br/>
+                    <span class="monedero">Balance: <%= user.balance %> XMR</span>
+                    <div class="dropdown-content">
+                        <a href="/logout">Cerrar sesión</a>
+                    </div>
+                </div>
+            <% } else { %>
+                <a href="/auth/google" class="btn btn-info btn-sm fs-sm rounded order-lg-3 d-none d-lg-inline-flex">
+                    <div class="google-login">
+                        <img class="google" src="/img/google_ico.png" width="25" alt="google login">
+                    </div>
+                    Iniciar sesión con Google
+                </a>
+            <% } %>
+        </div>-->
+        <nav id="navbarCollapse2" class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a href="/" class="nav-link <%= active === 'home' ? 'selected' : '' %>">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/footlive/trendingnews" class="nav-link <%= active === 'news' ? 'selected' : '' %>">Noticias</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/footlive/extension" class="nav-link  <%= active === 'extension' ? 'selected' : '' %>">Nuestra Extensión</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/footlive/contribution" class="nav-link  <%= active === 'contribution' ? 'selected' : '' %>">Contribución</a>
+                </li>
+                <!--<li class="nav-item">
+                    <a href="/footlive/monero" class="nav-link  <%= active === 'monero' ? 'selected' : '' %>">Gane Monero</a>
+                </li>-->
+            </ul>
+        </nav>
+    </div>
+</header>

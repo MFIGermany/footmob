@@ -245,18 +245,98 @@ export class FootMobController {
   }
 
   matches = async (req, res) => {
-    const base_urlTR = "https://www.tarjetarojaenvivo.nl/"
-    const base_urlPE = "https://futbollibretv.pe/"
+    this.footMob.setFunction('matches')
+
+    const fecha = '20241220'
+    this.footMob.getRequest(fecha)
+      .then(data => {
+        // console.log('Datos recibidos:', data)
+        
+        const leagues = {}
+        const checks_ids = [47,  54,  87,  55, 53, 42, 73, 77, 50, 44]
+        const interns = ['UEFA Nations League', 'World Cup Qualification']
+        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT']
+        const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png' }
+        const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America']
+        
+        if(data){
+          data.leagues.forEach(async (league) => {
+            let find_event = false
+            league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
+            interns.forEach((event) =>{
+              if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
+                find_event = true
+              }
+            })
+            if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode)) || find_event) {
+              let show = true
+              if(events.includes(league.name)){              
+                let event_name = league.name
+                show = false              
+
+                checks.forEach((check) => { 
+                  let find = event_name.includes(check)
+                  if(find){
+                    show = true
+                  }
+                })
+              }
+              else if(events.includes(league.parentLeagueName)){
+                let event_name = league.parentLeagueName
+                show = false
+                
+                checks.forEach((check) => { 
+                  let find = event_name.includes(check)
+                  if(find){
+                    show = true
+                  }
+                })
+              }
+
+              if(show){
+                leagues[league.name] = { flag: flags[league.ccode], matches: [] }
+                league.matches.forEach((match) => {
+                  leagues[league.name].matches.push({
+                    home: this.getCountry(match.home.name),
+                    homeid: match.home.id,
+                    scorehome: match.home.score,
+                    away: this.getCountry(match.away.name),
+                    awayid: match.away.id,
+                    scoreaway: match.away.score,
+                    started: match.status.started,
+                    finished: match.status.finished,
+                    reason: match.status.reason ? match.status.reason.short : undefined,
+                    time: match.status.liveTime ? match.status.liveTime.short : undefined,
+                    score: match.status.scoreStr ? match.status.scoreStr : undefined,
+                    start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
+                  })
+                })
+              }
+            }
+          })
+        }
+        console.log(leagues)
+      })
+      .catch(error => {
+        console.error('Error:', error)
+      })
+    
+    //Lista de Canales
+    const base_urlTR = "https://www.tarjetarojaenvivo.nl/"    
+    //const base_urlPE = "https://futbollibretv.pe/"
     const base_url = "https://www.elitegoltv.org/"
+    const base_urlRD = "https://rojadirectaenhd.net/agenda.html"
+    const channel_urlRD = "https://rojadirectaenhd.net"
     const data = {}
 
     try {
       data.matches = []
-      //data.matchesTR = []
+      data.matchesRD = []
       data.matchesPE = []
       const matches_today = []
 
       const response = await this.footMob.getMatches(base_url + 'home.php')
+      //const response = await this.footMob.getMatches(base_urlRD)
       
       if(response){
         //console.log('entre')
@@ -329,10 +409,10 @@ export class FootMobController {
         }
       }
 
-      console.log(data.matches.length)
+      //console.log(data.matches.length)
       if(data.matches.length == 0){
         const responseTR = await this.footMob.getMatches(base_urlTR)
-        console.log(responseTR)
+        //console.log(responseTR)
 
         if(responseTR){
           // Obtener todos los elementos li dentro del ul
@@ -377,16 +457,14 @@ export class FootMobController {
       }
 
       try {
-        const url_pe = 'https://futbollibrehd.pe/agenda.json'
-        const url_img = 'https://admin.futbollibrehd.pe'
-        /*
-        const url_pe = 'https://futbollibrehd.pe/agenda.json'
-        const url_img = 'https://img.futbollibrehd.pe'
-        */
+        //const url_pe = 'https://futbollibrehd.pe/agenda.json'
+        const url_pe = 'https://golazoplay.com/agendafree.json'
+        //const url_img = 'https://admin.futbollibrehd.pe'
+        const url_img = 'https://img.golazoplay.com'
+        const base_urlPE = "https://futbollibreonline.com/"
 
         const resp_pe = await this.footMob.getRequestPageJson(url_pe)
 
-        //console.log(resp_pe)
         let find = 0
         if(resp_pe && resp_pe.data){
           resp_pe.data.sort((a, b) => {
@@ -423,6 +501,54 @@ export class FootMobController {
               data.matchesPE.push(match)
             }
           })
+        }
+        else{
+          const response = await this.footMob.getMatches(base_urlRD)
+      
+          if(response){
+            //console.log('entre')
+            // Obtener todos los elementos li dentro del ul
+            const menuItems = response.querySelectorAll('ul.menu > li')
+            
+            // Iterar sobre los elementos li e imprimir su contenido
+            // let index = 0
+            for (var item of menuItems) {
+              const match = []
+              
+              match.country = item.className
+              // Obtener el nombre del partido
+              const linkText = item.querySelector('a').textContent.trim()
+              // Eliminar el texto de la hora del nombre del partido
+              if(item.querySelector('span.t')){
+                match.name = linkText.replace(item.querySelector('span.t').textContent.trim(), '')
+                match.time = item.querySelector('span.t').textContent.trim()
+
+                match.channels = []
+                // Obtener los canales de transmisión del partido
+                const subItems = item.querySelectorAll('ul li.subitem1')
+                subItems.forEach(subItem => {
+                  const channel = []
+                  // Obtener la URL del canal de transmisión
+                  let url_chanel = subItem.querySelector('a').getAttribute('href')
+
+                  if (!url_chanel.includes('http') && !url_chanel.includes('https')) {
+                    url_chanel = channel_urlRD + url_chanel
+                  }
+
+                  channel.url = url_chanel
+                  // Obtener el nombre del canal de transmisión
+                  const linkName = subItem.querySelector('a').textContent.trim()
+                  channel.name = linkName.replace(subItem.querySelector('span').textContent.trim(), '')
+                  // Agregar el canal al arreglo de canales del partido
+                  match.channels.push(channel)
+                })
+
+                console.log(match)
+                data.matchesRD.push(match)
+                // index++
+              }
+            }
+          }
         }
       }
       catch (error) {
@@ -463,6 +589,11 @@ export class FootMobController {
   extension = async (req, res) => {
     const data = {}
     res.render('extension', { data: data })
+  }
+
+  monero = async (req, res) => {
+    const data = {}
+    res.render('monero', { data: data })
   }
 
   news = async (req, res) => {

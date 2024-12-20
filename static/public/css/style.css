@@ -6,9 +6,62 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
 }
+.navbar .menu {
+    position: absolute;
+    font-size: 17px;
+    top: 9px;
+    right: 30px;
+}
+.monedero{
+    position: relative;
+    top: -10px;
+    font-size: 14px;
+    color: #FFD700;
+    font-family: Arial,Helvetica,sans-serif;
+}
+.google-login{
+    background-color: #fff;
+    padding: 7px;
+    margin: -9px 15px -9px -20px;
+    border-radius: 5px 0 0 5px;
+}
+.dropdown {    
+    position: relative;
+    display: inline-block;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #4C82F7;
+    color: black;
+    min-width: 120px;
+    border-radius: 5px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    top: 42px;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+    border-radius: 5px;
+}
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: block;    
+}
+#getmonero{
+    margin-left: 0;
+    padding: 0;
+    color: #2767F2;
+}
+#getmonero:hover{
+    color: #333;
+}
 
-.container-header{
-    max-width: 1300px !important;
+.dropdown-content a:hover {
+    background-color: #2767F2;
 }
 
 a:hover, .navbar-brand:hover{
