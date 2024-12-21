@@ -224,34 +224,34 @@
         function showChannels(channel){
             const list_channel1 = document.getElementById('channels1');
             const list_channel2 = document.getElementById('channels2');
-            const list_channel3 = document.getElementById('channels3');
+            //const list_channel3 = document.getElementById('channels3');
             const list1 = document.getElementById('list1');
             const list2 = document.getElementById('list2');
-            const list3 = document.getElementById('list3');
+            //const list3 = document.getElementById('list3');
 
             if(channel == 1){
                 list_channel1.classList.remove('invisible');
                 list_channel2.classList.add('invisible');
-                list_channel3.classList.add('invisible');
+                //list_channel3.classList.add('invisible');
                 list1.classList.add('selected');
                 list2.classList.remove('selected');
-                list3.classList.remove('selected');
+               // list3.classList.remove('selected');
             }
             else if(channel == 2){
                 list_channel1.classList.add('invisible');
                 list_channel2.classList.remove('invisible');
-                list_channel3.classList.add('invisible');
+                //list_channel3.classList.add('invisible');
                 list1.classList.remove('selected');
                 list2.classList.add('selected');
-                list3.classList.remove('selected');
+                //list3.classList.remove('selected');
             }
             else{
                 list_channel1.classList.add('invisible');
                 list_channel2.classList.add('invisible');
-                list_channel3.classList.remove('invisible');
+                //list_channel3.classList.remove('invisible');
                 list1.classList.remove('selected');
                 list2.classList.remove('selected');
-                list3.classList.add('selected');
+                //list3.classList.add('selected');
             }
         }
 
@@ -329,14 +329,14 @@
                 const remainingTime = endTime - Date.now();
 
                 if (remainingTime <= 0) {
-                // Timer completado
-                clearInterval(timerInterval);
-                localStorage.removeItem(TIMER_KEY); // Eliminar el valor al finalizar
-                display.textContent = "¡Tiempo completado! Puedes reclamar Monero.";
+                    // Timer completado
+                    clearInterval(timerInterval);
+                    localStorage.removeItem(TIMER_KEY); // Eliminar el valor al finalizar
+                    //display.textContent = "¡Tiempo completado! Puedes reclamar Monero.";
                 } else {
-                const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
-                const seconds = Math.floor((remainingTime / 1000) % 60);
-                display.textContent = `${minutes}m ${seconds}s`;
+                    const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+                    const seconds = Math.floor((remainingTime / 1000) % 60);
+                    //display.textContent = `${minutes}m ${seconds}s`;
                 }
             }
 
