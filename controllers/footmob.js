@@ -559,6 +559,11 @@ export class FootMobController {
     res.render('extension', { data: data })
   }
 
+  politica = async (req, res) => {
+    const data = {}
+    res.render('politica', { data: data })
+  }
+
   monero = async (req, res) => {
     const data = {}
     res.render('monero', { data: data })

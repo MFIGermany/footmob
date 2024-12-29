@@ -83,7 +83,7 @@ a:hover, .navbar-brand:hover{
 #container {
     display: flex;
     margin-top: 61px;
-    min-height: 880px;
+    min-height: 980px;
     justify-content: center;
 }
 

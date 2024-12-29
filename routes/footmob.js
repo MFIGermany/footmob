@@ -19,6 +19,7 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.get('/matches/:lang?', footMobController.matches)
   footmobRouter.get('/trendingnews', footMobController.trendingnews)
   footmobRouter.get('/contribution', footMobController.contribution)
+  footmobRouter.get('/politica', footMobController.politica)
   footmobRouter.get('/monero', footMobController.monero)
 
   return footmobRouter
