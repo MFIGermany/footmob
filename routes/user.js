@@ -27,7 +27,10 @@ export const createUserRouter = () => {
     })
 
     // Ruta para validar captcha
-    userRouter.post('/validate-recaptcha', userController.recaptcha)
+    userRouter.post('/getmonero', userController.recaptcha)
+    userRouter.post('/withdraw', userController.withdraw)
+    userRouter.post('/savedir', userController.savedir)
+    userRouter.get('/wallet', userController.wallet)
 
     return userRouter
 }

@@ -1,13 +1,17 @@
 import { FootMobModel } from '../models/footmob.js'
+import { UserModel } from '../models/user.js'
 // import { MatchModel } from '../models/match.js'
 
 import list_leagues from '../leagues.json' assert { type: "json" }
+import read from 'body-parser/lib/read.js'
 
 export class FootMobController {
+  static userFootMob
   static footMob
 
   constructor ({ url }) {
     this.footMob = new FootMobModel({ url })
+    this.userFootMob = new UserModel()
   }
 
   isString = (input) => {
@@ -73,6 +77,15 @@ export class FootMobController {
     }
 
     return name
+  }
+
+  isMore5mAgo = (date) => {
+    const now = new Date() // Fecha y hora actual
+    const past = new Date(date) // Fecha pasada para comparar
+    const differenceInMilliseconds = now - past // Diferencia en milisegundos
+  
+    // Cinco minutos en milisegundos: 5 * 60 * 1000
+    return differenceInMilliseconds > 5 * 60 * 1000
   }
   
   index = async (req, res) => {
@@ -245,81 +258,23 @@ export class FootMobController {
   }
 
   matches = async (req, res) => {
-    this.footMob.setFunction('matches')
+    const data = {}
 
-    const fecha = '20241220'
-    this.footMob.getRequest(fecha)
-      .then(data => {
-        // console.log('Datos recibidos:', data)
-        
-        const leagues = {}
-        const checks_ids = [47,  54,  87,  55, 53, 42, 73, 77, 50, 44]
-        const interns = ['UEFA Nations League', 'World Cup Qualification']
-        const codes = ['ENG', 'ESP', 'ITA', 'GER', 'FRA', 'INT']
-        const flags = { 'ENG': 'eng.png', 'ESP': 'esp.png', 'ITA': 'ita.png', 'GER': 'ger.png', 'FRA': 'fra.png', 'INT': 'int.png' }
-        const events = ['Champions League', 'Champions League Final Stage', 'Europa League', 'Europa League Final Stage', 'Copa America']
-        
-        if(data){
-          data.leagues.forEach(async (league) => {
-            let find_event = false
-            league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
-            interns.forEach((event) =>{
-              if(league.name.includes(event) && !league.name.includes('AFC') && !league.name.includes('OFC')){
-                find_event = true
-              }
-            })
-            if ((league.parentLeagueName && events.includes(league.parentLeagueName)) || events.includes(league.name) || (checks_ids.includes(league.primaryId) && codes.includes(league.ccode)) || find_event) {
-              let show = true
-              if(events.includes(league.name)){              
-                let event_name = league.name
-                show = false              
+    //Cargar los partidos para las apuestas deportivas
+    if(req.session.user){
+      data.partidos = []
+      const user = await this.userFootMob.getUserById(req.session.user.id)
 
-                checks.forEach((check) => { 
-                  let find = event_name.includes(check)
-                  if(find){
-                    show = true
-                  }
-                })
-              }
-              else if(events.includes(league.parentLeagueName)){
-                let event_name = league.parentLeagueName
-                show = false
-                
-                checks.forEach((check) => { 
-                  let find = event_name.includes(check)
-                  if(find){
-                    show = true
-                  }
-                })
-              }
-
-              if(show){
-                leagues[league.name] = { flag: flags[league.ccode], matches: [] }
-                league.matches.forEach((match) => {
-                  leagues[league.name].matches.push({
-                    home: this.getCountry(match.home.name),
-                    homeid: match.home.id,
-                    scorehome: match.home.score,
-                    away: this.getCountry(match.away.name),
-                    awayid: match.away.id,
-                    scoreaway: match.away.score,
-                    started: match.status.started,
-                    finished: match.status.finished,
-                    reason: match.status.reason ? match.status.reason.short : undefined,
-                    time: match.status.liveTime ? match.status.liveTime.short : undefined,
-                    score: match.status.scoreStr ? match.status.scoreStr : undefined,
-                    start: match.status.startTimeStr ? match.status.startTimeStr : match.status.utcTime
-                  })
-                })
-              }
-            }
-          })
+      const partidos = await this.userFootMob.getPartidos()
+      for (var item of partidos) {
+        const res = await this.userFootMob.getApuesta(user.id, item.id)
+        if(res){
+          item.apuesta = res.apuesta
         }
-        console.log(leagues)
-      })
-      .catch(error => {
-        console.error('Error:', error)
-      })
+
+        data.partidos.push(item)
+      }
+    }
     
     //Lista de Canales
     const base_urlTR = "https://www.tarjetarojaenvivo.nl/"    
@@ -327,7 +282,10 @@ export class FootMobController {
     const base_url = "https://www.elitegoltv.org/"
     const base_urlRD = "https://rojadirectaenhd.net/agenda.html"
     const channel_urlRD = "https://rojadirectaenhd.net"
-    const data = {}
+    
+    this.footMob.setFunction('matches')
+    
+    data.recaptcha = process.env.RECAPTCHA_SITE_KEY
 
     try {
       data.matches = []
@@ -556,8 +514,18 @@ export class FootMobController {
         console.error('An error occurred');
       }
 
-      //if(!find)
-        //data.matches = []
+      //Visualizar el timer
+      let time = ''
+      let ready = false
+      if(req.session.user && req.session.user.ultimo_reclamo)
+        time = new Date(req.session.user.ultimo_reclamo)
+
+      if(!time || this.isMore5mAgo(time))
+       ready = true
+
+      data.ready = ready
+
+      console.log(time+'-->'+ready)
       
       res.render('index', { data: data })
     } catch (error) {

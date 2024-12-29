@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 body {
     margin: 0;
     padding: 0;
@@ -18,6 +17,17 @@ body {
     font-size: 14px;
     color: #FFD700;
     font-family: Arial,Helvetica,sans-serif;
+}
+.footlive-logout, .footlive-wallet, .label-logout{
+    float: left;
+}
+.footlive-logout, .footlive-wallet{
+    background-color: transparent;
+    padding: 2px;
+    margin: -2px 8px 0 -5px;
+}
+.footlive-wallet{
+    margin-top: -3px;
 }
 .google-login{
     background-color: #fff;
@@ -49,7 +59,8 @@ body {
     padding: 8px 12px;
     border-radius: 5px;
     text-decoration: none;
-    display: block;    
+    display: block;
+    height: 48px;
 }
 #getmonero{
     margin-left: 0;
@@ -95,11 +106,28 @@ a:hover, .navbar-brand:hover{
 }
 
 .view_matches #left-column, .view_matches #right-column{
-    width: 20%;
+    width: 21%;
 }
 
 .view_matches #center-column {
-    width: 60%;
+    width: 58%;
+}
+.recaptcha{
+    text-align: center;
+}
+#timer{
+    font-weight:bold;
+    font-size:1.4em;
+    display:block;
+    margin-bottom: 5px;
+}
+.g-recaptcha{
+    margin-bottom: 5px;
+}
+.form-recaptcha{
+    text-align: center;
+    margin: 0 auto;
+    padding: 10px 0;
 }
 
 iframe {
@@ -269,6 +297,47 @@ iframe.content {
     border-radius: 5px;
     color: #000;
     font-family: "Rubik",system,Arial,sans-serif !important;
+}
+.form-amount{
+    /*margin: 5px 0;*/
+}
+.status-green{
+    color: #2ed573;
+}
+.status-red{
+    color: #E02D18;
+}
+.w3-border-blue, .w3-hover-border-blue:hover {
+    border: 1px solid #2196F3 !important;
+    border-radius: 5px;
+    padding: 8px 16px;
+    width: 500px;
+}
+.w3-input {
+    padding: 8px;
+    display: block;
+    border: none;
+    width: 250px;
+    float: left;
+    border: 1px solid #ccc;
+}
+.w3-input-wallet{
+    width: 500px;
+}
+.btn-withdraw{
+    height: 33px;
+    color: #fff;
+    margin-left:10px;
+    padding-block: 1px;
+    padding-inline: 6px;
+    border-width: 2px;
+    border-style: outset;
+    border-image: initial;
+    background-color: #38685e;
+    border-color: buttonborder;
+}
+.withdraw{
+    margin-bottom: 10px !important;
 }
 
 @media only screen and (max-width: 420px) {

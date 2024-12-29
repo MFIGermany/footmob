@@ -19,6 +19,7 @@
     <% if(data.matchesRD.length > 0)  { %>
         <link href="/css/rdhd.css" rel="stylesheet" type="text/css">
     <% } %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-G2193Y7XNZ"></script>
@@ -36,7 +37,21 @@
     <%- include('partials/menu', { active: 'home' }) %>
     <div id="container" class="view_matches">        
         <div id="left-column">
-            <!--<div id="timer" style="font-size: 2em; font-weight: bold;"></div>-->
+            <input type="hidden" id="ready" value="<%= data.ready %>"/>
+            <% if (user) { %>
+            <div class="recaptcha">
+                <% if (data.ready == false) { %>
+                <div id="timer"></div>
+                <% }else{ %>
+                <div class="form-recaptcha" style="display:block;">
+                    <form id="form_monero">
+                        <div class="g-recaptcha" data-sitekey="<%= data.recaptcha %>" data-action="LOGIN"></div>
+                        <input type="submit" class="btn btn-info btn-sm fs-sm rounded order-lg-3 d-none d-lg-inline-flex" value="Reclamar">
+                    </form>
+                </div>
+                <% } %>
+            </div>
+            <% } %>
             <!-- Anuncios de visualización -->
             <a href="https://chromewebstore.google.com/detail/football-live/pdehjnikdhecaajakdgdoflodnbedfim" aria-label="Descargue nuestra extensión" target="_blank">
                 <img id="mini" src="./img/miniatura.webp" alt="mini_footlive" style="width:100%;"/>
@@ -149,7 +164,89 @@
             <div id="ads_right"></div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        var ready = document.getElementById('ready').value;
+        const TIMER_DURATION = 5 * 60 * 1000; // 5 minutos en milisegundos
+        const TIMER_KEY = 'timerEndTime'; // Clave para guardar el tiempo en localStorage
+
+        window.onload = () => {
+            //Reclamar monero
+            if(ready == 'true'){
+                document.getElementById('form_monero').onsubmit = function(e){
+                    e.preventDefault();
+
+                    //Get captcha response
+                    var formData = new FormData(document.getElementById('form_monero'));
+                    var captchaResponse = formData.get('g-recaptcha-response');
+                    const data = { token: captchaResponse };
+
+                    try {
+                        const response = fetch("/getmonero", {
+                        method: 'POST', // Método HTTP
+                        headers: {
+                            'Content-Type': 'application/json', // Especifica que los datos son JSON
+                        },
+                            body: JSON.stringify(data), // Convierte el objeto `data` a una cadena JSON
+                        }).then((res) => res.json())
+                        .then((data) => {
+                            Swal.fire({
+                                icon: data.type, // success, error, warning, info, question
+                                title: data.message,
+                                timer: 2000,
+                                showConfirmButton: false,
+                                position: 'top-end',
+                                toast: true
+                            }).then(() => {
+                                if(data.type == 'success')
+                                    window.location.reload();
+                            })
+                        })
+                    } catch (error) {
+                        console.log('Error sending data:', error.message)
+                    }
+                }
+            }
+            else{
+                function startTimer(duration, display) {
+                    const now = Date.now();
+                    let endTime;
+
+                    // Verificar si ya hay un tiempo guardado
+                    const savedEndTime = localStorage.getItem(TIMER_KEY);
+                    if (savedEndTime) {
+                        endTime = parseInt(savedEndTime, 10);
+                    } else {
+                        endTime = now + duration;
+                        localStorage.setItem(TIMER_KEY, endTime); // Guardar el tiempo final
+                    }
+
+                    function updateTimer() {
+                        const remainingTime = endTime - Date.now();
+
+                        if (remainingTime <= 0) {
+                            // Timer completado
+                            clearInterval(timerInterval);
+                            localStorage.removeItem(TIMER_KEY); // Eliminar el valor al finalizar
+                            display.textContent = "¡LISTO! Actualiza la página.";
+                        } else {
+                            const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+                            const seconds = Math.floor((remainingTime / 1000) % 60);
+                            display.textContent = `Próximo reclamo: ${minutes}m ${seconds}s`;
+                        }
+                    }
+
+                    // Actualizar el timer cada segundo
+                    const timerInterval = setInterval(updateTimer, 1000);
+                    updateTimer(); // Llamar inmediatamente al inicio
+                }
+            }
+
+            const timerDisplay = document.getElementById("timer");
+            if(timerDisplay)
+                startTimer(TIMER_DURATION, timerDisplay);
+        };
+
         // Obtener todos los elementos li del menú
         const itemsLi = document.querySelectorAll('.menu li');
 
@@ -307,48 +404,6 @@
                 renderIn: '#ads_right'
             });
         });
-    </script>
-    <script>
-        const TIMER_DURATION = 5 * 60 * 1000; // 5 minutos en milisegundos
-        const TIMER_KEY = 'timerEndTime'; // Clave para guardar el tiempo en localStorage
-
-        function startTimer(duration, display) {
-            const now = Date.now();
-            let endTime;
-
-            // Verificar si ya hay un tiempo guardado
-            const savedEndTime = localStorage.getItem(TIMER_KEY);
-            if (savedEndTime) {
-                endTime = parseInt(savedEndTime, 10);
-            } else {
-                endTime = now + duration;
-                localStorage.setItem(TIMER_KEY, endTime); // Guardar el tiempo final
-            }
-
-            function updateTimer() {
-                const remainingTime = endTime - Date.now();
-
-                if (remainingTime <= 0) {
-                    // Timer completado
-                    clearInterval(timerInterval);
-                    localStorage.removeItem(TIMER_KEY); // Eliminar el valor al finalizar
-                    //display.textContent = "¡Tiempo completado! Puedes reclamar Monero.";
-                } else {
-                    const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
-                    const seconds = Math.floor((remainingTime / 1000) % 60);
-                    //display.textContent = `${minutes}m ${seconds}s`;
-                }
-            }
-
-            // Actualizar el timer cada segundo
-            const timerInterval = setInterval(updateTimer, 1000);
-            updateTimer(); // Llamar inmediatamente al inicio
-        }
-
-        window.onload = () => {
-            const timerDisplay = document.getElementById("timer");
-            startTimer(TIMER_DURATION, timerDisplay);
-        };
     </script>
 </body>
 </html>

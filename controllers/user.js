@@ -1,6 +1,7 @@
 
 import { UserModel } from '../models/user.js'
 import dotenv from 'dotenv'
+import https from 'https'
 
 dotenv.config({ path: './.env' })
 
@@ -8,20 +9,20 @@ export class UserController {
     static userFootMob
 
     constructor () {
-        this.userFootMob = new UserModel()
+      this.userFootMob = new UserModel()
     }
 
     isNextDayOrLater = (targetDateString) => {
-        // Obtener la fecha actual y la fecha objetivo
-        const today = new Date()
-        const targetDate = new Date(targetDateString)
-      
-        // Resetear las horas para comparar solo el año, mes y día
-        today.setHours(0, 0, 0, 0)
-        targetDate.setHours(0, 0, 0, 0)
-      
-        // Comparar si la fecha actual es igual o mayor a la fecha objetivo
-        return today > targetDate
+      // Obtener la fecha actual y la fecha objetivo
+      const today = new Date()
+      const targetDate = new Date(targetDateString)
+    
+      // Resetear las horas para comparar solo el año, mes y día
+      today.setHours(0, 0, 0, 0)
+      targetDate.setHours(0, 0, 0, 0)
+    
+      // Comparar si la fecha actual es igual o mayor a la fecha objetivo
+      return today > targetDate
     }
 
     sumarSatoshis = (a, b) => {
@@ -35,6 +36,18 @@ export class UserController {
         // Convertir de vuelta a Monero
         return totalSatoshis / 1e12;
     }
+
+    restarSatoshis = (a, b) => {
+      // Convertir los montos a satoshis (enteros)
+      const satoshisA = Math.round(a * 1e12);
+      const satoshisB = Math.round(b * 1e12);
+    
+      // Realizar la suma
+      const totalSatoshis = satoshisA - satoshisB;
+    
+      // Convertir de vuelta a Monero
+      return totalSatoshis / 1e12;
+  }
 
     formatDateForMySQL = (date) => {
         const year = date.getFullYear()
@@ -71,22 +84,19 @@ export class UserController {
 
                     user.balance = resultado.toFixed(8)
 
-                    console.log(user)
-
-                    this.userFootMob.updateBalance(user.id, user.balance)
-
                     const today = new Date()
                     const fechaMySQL = this.formatDateForMySQL(today)
+
+                    this.userFootMob.updateBalance(user.id, user.balance)
 
                     this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
                 }
 
-                req.session.user = { id: profile.id, name: profile.displayName, balance: user.balance }
+                req.session.user = { id: profile.id, name: profile.displayName, billetera: user.billetera, balance: user.balance, ultimo_reclamo: user.ultimo_reclamo }
+                console.log(req.session.user)
             }
             else
-                req.session.user = { id: profile.id, name: profile.displayName, balance: '0.00000100' }
-
-            console.log(req.session.user)
+                req.session.user = { id: profile.id, name: profile.displayName, billetera: '', balance: '0.00000100' }
 
             res.redirect('/footlive')
         } catch (error) {
@@ -94,8 +104,78 @@ export class UserController {
         }
     }
 
+    isMore5mAgo = (date) => {
+      const now = new Date() // Fecha y hora actual
+      const past = new Date(date) // Fecha pasada para comparar
+      const differenceInMilliseconds = now - past // Diferencia en milisegundos
+    
+      // Cinco minutos en milisegundos: 5 * 60 * 1000
+      return differenceInMilliseconds > 5 * 60 * 1000
+    }
+
+    wallet = async (req, res) => {
+      const data = {}
+
+      if(req.session.user){
+        data.withdraws = await this.userFootMob.getWithdraws(req.session.user.id)
+
+        res.render('monedero', { data: data })
+      }
+      else
+        res.redirect('/')
+    }
+
+    withdraw = async (req, res) => {
+      const { amount } = req.body
+
+      if(req.session.user){
+        const today = new Date()
+        const fechaMySQL = this.formatDateForMySQL(today)
+        const user_withdraw = await this.userFootMob.setWithdraw(req.session.user.id, amount, fechaMySQL)
+
+        if (user_withdraw){
+          const resultado = this.restarSatoshis(req.session.user.balance, amount)
+
+          if(resultado > 0){
+            req.session.user.balance = resultado.toFixed(8)
+
+            const user = await this.userFootMob.getUserById(req.session.user.id)
+
+            this.userFootMob.updateBalance(user.id, req.session.user.balance)
+
+            return res.json({ type: 'success', message: 'Solicitud de retiro satisfactoriamente.' })
+          }
+          else
+            return res.status(400).json({ type: 'error', message: 'No tiene suficiente saldo para retirar.' })
+        }
+        else
+          return res.status(400).json({ type: 'error', message: 'Error al gestionar la solicitud de retiro, por favor contante con el administrador.' })
+      }
+      else
+        res.redirect('/')
+    }
+
+    savedir = async (req, res) => {
+      const { wallet } = req.body
+
+      if(req.session.user){
+        const user_wallet = await this.userFootMob.updateWallet(req.session.user.id, wallet)
+
+        if (user_wallet){
+          req.session.user.billetera = wallet
+          return res.json({ type: 'success', message: 'Se ha guardado su dirección de monedero satisfactoriamente.' })
+        }
+        else
+          return res.status(400).json({ type: 'info', message: 'Esa dirección de monedero ya está asociada a otra cuenta.' })
+      }
+      else
+        res.redirect('/')
+    }
+
     recaptcha = async (req, res) => {
         const { token } = req.body
+
+        const user = await this.userFootMob.getUserById(req.session.user.id)
       
         // Datos a enviar a la API de Google reCAPTCHA
         const params = new URLSearchParams({
@@ -123,9 +203,32 @@ export class UserController {
             const result = JSON.parse(data);
       
             if (result.success) {
-              return res.json({ success: true, message: 'reCAPTCHA validado correctamente' })
+              //Consultar tiempo
+              let time = ''
+              if(user.ultimo_reclamo)
+                time = new Date(user.ultimo_reclamo)
+
+              if(!time || this.isMore5mAgo(time)){
+                //Guardar recompensa
+                let monto = '0.00000075'
+                const resultado = this.sumarSatoshis(user.balance, monto)
+
+                user.balance = resultado.toFixed(8)
+                
+                const today = user.ultimo_reclamo = new Date()
+                const fechaMySQL = this.formatDateForMySQL(today)
+
+                this.userFootMob.updateBalance(user.id, user.balance, fechaMySQL)
+              }
+              else
+                return res.status(400).json({ type: 'warning', message: 'Debe esperar 5min hasta el próximo reclamo' })
+
+              req.session.user.balance = user.balance
+              req.session.user.ultimo_reclamo = user.ultimo_reclamo
+
+              return res.json({ type: 'success', message: 'Gracias. Tu recompensa se ha añadido a tu balance.' })
             } else {
-              return res.status(400).json({ success: false, message: 'Fallo en reCAPTCHA' })
+              return res.status(400).json({ type: 'error', message: 'Validación de Captcha incorrecto, vuelva a interlo' })
             }
           })
         })
