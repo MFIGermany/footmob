@@ -416,7 +416,7 @@ export class FootMobController {
 
       try {
         //const url_pe = 'https://futbollibrehd.pe/agenda.json'
-        const url_pe = 'https://golazoplay.com/agendafree.json'
+        const url_pe = 'https://golazoplay.com/agenda.json'
         //const url_img = 'https://admin.futbollibrehd.pe'
         const url_img = 'https://img.golazoplay.com'
         const base_urlPE = "https://futbollibreonline.com/"
