@@ -68,8 +68,12 @@ export class UserController {
         const email = profile.emails[0].value
 
         try {
+            const today = new Date()
+            const fechaMySQL = this.formatDateForMySQL(today)
             // Verifica si el usuario ya existe
             let user = await this.userFootMob.getUserById(googleId);
+
+            this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
             //console.log(user)
             if (!user) {
                 // Si no existe, crea uno nuevo
@@ -83,9 +87,6 @@ export class UserController {
                     const resultado = this.sumarSatoshis(user.balance, monto)
 
                     user.balance = resultado.toFixed(8)
-
-                    const today = new Date()
-                    const fechaMySQL = this.formatDateForMySQL(today)
 
                     this.userFootMob.updateBalance(user.id, user.balance)
 

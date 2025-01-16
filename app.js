@@ -56,6 +56,7 @@ export const createApp = () => {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: 'https://www.football-live.lol/auth/google/footlive',
+      //callbackURL: '/auth/google/footlive', //local
     },
     function(accessToken, refreshToken, profile, done) {
       done(null, profile)
