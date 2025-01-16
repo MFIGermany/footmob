@@ -55,7 +55,7 @@ export const createApp = () => {
     new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/auth/google/footlive',
+      callbackURL: 'https://www.football-live.lol/auth/google/footlive',
     },
     function(accessToken, refreshToken, profile, done) {
       done(null, profile)
