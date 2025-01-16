@@ -72,12 +72,11 @@ export class UserController {
             const fechaMySQL = this.formatDateForMySQL(today)
             // Verifica si el usuario ya existe
             let user = await this.userFootMob.getUserById(googleId);
-
-            //this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
+            
             //console.log(user)
             if (!user) {
                 // Si no existe, crea uno nuevo
-                this.userFootMob.createUser(googleId, name, email);
+                this.userFootMob.createUser(googleId, name, email)                
             }
 
             if(user){
@@ -96,8 +95,13 @@ export class UserController {
                 req.session.user = { id: profile.id, name: profile.displayName, billetera: user.billetera, balance: user.balance, ultimo_reclamo: user.ultimo_reclamo }
                 console.log(req.session.user)
             }
-            else
+            else{
+                user = await this.userFootMob.getUserById(googleId)
+                
+                this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
+                
                 req.session.user = { id: profile.id, name: profile.displayName, billetera: '', balance: '0.00000100' }
+            }
 
             res.redirect('/footlive')
         } catch (error) {
