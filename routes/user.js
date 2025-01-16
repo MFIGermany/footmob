@@ -8,7 +8,7 @@ export const createUserRouter = () => {
     const userController = new UserController()
 
     // Ruta para iniciar sesión con Google
-    userRouter.get('/auth/google', (req, res, next) => {
+    userRouter.get('https://www.football-live.lol/auth/google', (req, res, next) => {
         passport.authenticate('google', { 
             scope: ['profile', 'email']
         }, (err, user, info) => {
@@ -31,7 +31,7 @@ export const createUserRouter = () => {
     });
   
     // Ruta de callback de Google
-    userRouter.get('/auth/google/footlive', passport.authenticate('google', { 
+    userRouter.get('https://www.football-live.lol/auth/google/footlive', passport.authenticate('google', { 
         failureRedirect: '/login' }), 
         userController.singin
     )
