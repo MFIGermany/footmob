@@ -99,7 +99,7 @@ export class UserController {
                 user = await this.userFootMob.getUserById(googleId)
                 
                 this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
-                
+
                 req.session.user = { id: profile.id, name: profile.displayName, billetera: '', balance: '0.00000100' }
             }
 
@@ -215,7 +215,7 @@ export class UserController {
 
               if(!time || this.isMore5mAgo(time)){
                 //Guardar recompensa
-                let monto = '0.00000075'
+                let monto = '0.00000050'
                 const resultado = this.sumarSatoshis(user.balance, monto)
 
                 user.balance = resultado.toFixed(8)
