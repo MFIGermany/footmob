@@ -73,7 +73,7 @@ export class UserController {
             // Verifica si el usuario ya existe
             let user = await this.userFootMob.getUserById(googleId);
 
-            this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
+            //this.userFootMob.updateFechaLogin(user.id, fechaMySQL)
             //console.log(user)
             if (!user) {
                 // Si no existe, crea uno nuevo
