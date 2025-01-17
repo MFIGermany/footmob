@@ -156,7 +156,7 @@ export class UserModel {
         const q = "SELECT id_usuario FROM monedero WHERE billetera = ?"
         const [rows] = await this.connection.execute(q, [wallet])
         
-        if(rows && rows[0].id_usuario != id_user)
+        if(rows.length && rows[0].id_usuario != id_user)
           return false
 
         const query = "UPDATE monedero SET billetera = ? WHERE id_usuario = ?"
