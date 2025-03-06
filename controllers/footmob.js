@@ -422,14 +422,14 @@ export class FootMobController {
         const base_urlPE = "https://futbollibreonline.com/"
 
         const resp_pe = await this.footMob.getRequestPageJson(url_pe)
-
+        
         let find = 0
         if(resp_pe && resp_pe.data){
-          resp_pe.data.sort((a, b) => {
+          /*resp_pe.data.sort((a, b) => {
             let dateA = this.convertToDate(a)
             let dateB = this.convertToDate(b)
             return dateA - dateB
-          })
+          })*/
           
           resp_pe.data.forEach(async (item) => {
             const match = []
