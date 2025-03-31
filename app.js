@@ -44,14 +44,7 @@ export const createApp = () => {
 
   // Middleware para pasar usuario a todas las vistas
   app.use((req, res, next) => {
-    const oldDomain = "football-live.lol"
-    const newDomain = "football-live.it.com"
-
-    // Verificar si la solicitud viene del dominio antiguo
-    if (req.headers.host === oldDomain || req.headers.host === `www.${oldDomain}`) {
-      return res.redirect(301, `https://${newDomain}${req.originalUrl}`)
-    }
-    res.locals.user = req.session.user || null
+    res.locals.user = req.session.user || null;
     next();
   });
   
