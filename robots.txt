@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.football-live.lol/sitemap.xml
+Sitemap: https://www.football-live.it.com/sitemap.xml
