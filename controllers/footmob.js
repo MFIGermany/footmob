@@ -419,7 +419,7 @@ export class FootMobController {
         const url_pe = 'https://golazoplay.com/agenda.json'
         //const url_img = 'https://admin.futbollibrehd.pe'
         const url_img = 'https://img.golazoplay.com'
-        const base_urlPE = "https://futbollibreonline.com/"
+        const base_urlPE = "https://futbollibreonline.org"
 
         const resp_pe = await this.footMob.getRequestPageJson(url_pe)
         
