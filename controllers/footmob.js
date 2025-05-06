@@ -252,9 +252,14 @@ export class FootMobController {
   }
 
   convertToDate = (event) => {
+    //console.log(event)
     let hora = event.attributes.diary_hour
-    let [hour, minute, second] = hora.split(':')
-    return new Date(0, 0, 0, hour, minute, second)
+    if(hora) {
+      let [hour, minute, second] = hora.split(':')
+      return new Date(0, 0, 0, hour, minute, second)
+    }
+    else
+      return false
   }
 
   matches = async (req, res) => {
@@ -434,7 +439,7 @@ export class FootMobController {
           resp_pe.data.forEach(async (item) => {
             const match = []
             
-            if(item.attributes.country.data && item.attributes.country.data.attributes){
+            if(item.attributes.country.data && item.attributes.country.data.attributes && item.attributes.diary_hour){
               match.name = item.attributes.diary_description.replace('vs.', 'vs')
               match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
               match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
@@ -511,6 +516,7 @@ export class FootMobController {
       }
       catch (error) {
         // Manejo del error
+        console.error(error)
         console.error('An error occurred');
       }
 
