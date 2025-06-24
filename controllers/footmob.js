@@ -420,12 +420,12 @@ export class FootMobController {
       }
 
       try {
-        //const url_pe = 'https://futbollibrehd.pe/agenda.json'
-        const url_pe = 'https://golazoplay.com/agenda.json'
+        //const url_pe = 'https://golazoplay.com/agenda.json'
+        const url_pe = 'https://ftvhd.com/diaries.json'
         //const url_img = 'https://admin.futbollibrehd.pe'
-        const url_img = 'https://img.golazoplay.com'
+        const url_img = 'https://panel.futbollibretvs.pe'
         //const base_urlPE = "https://futbollibreonline.org"
-        const base_urlPE = "https://futbollibre.mx"
+        const base_urlPE = "https://futbollibrehd.com"
 
         const resp_pe = await this.footMob.getRequestPageJson(url_pe)
         
