@@ -109,7 +109,7 @@ export class FootMobController {
 
     this.footMob.getRequest(fecha)
       .then(data => {
-        // console.log('Datos recibidos:', data)
+        //console.log('Datos recibidos:', data)
         
         const leagues = {}
         const interns = ['UEFA Nations League', 'World Cup Qualification']
@@ -120,6 +120,7 @@ export class FootMobController {
         
         if(data){
           data.leagues.forEach(async (league) => {
+            console.log(league.matches)
             let find_event = false
             league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
             interns.forEach((event) =>{
@@ -153,6 +154,7 @@ export class FootMobController {
               }
 
               if(show){
+                //console.log(league.matches)
                 leagues[league.name] = { flag: flags[league.ccode], matches: [] }
                 league.matches.forEach((match) => {
                   leagues[league.name].matches.push({
@@ -425,7 +427,7 @@ export class FootMobController {
         //const url_img = 'https://admin.futbollibrehd.pe'
         const url_img = 'https://panel.futbollibretvs.pe'
         //const base_urlPE = "https://futbollibreonline.org"
-        const base_urlPE = "https://futbollibrehd.com"
+        const base_urlPE = "https://tvhdlibre.com"
 
         const resp_pe = await this.footMob.getRequestPageJson(url_pe)
         
