@@ -445,8 +445,8 @@ export class FootMobController {
             if(item.attributes.country.data && item.attributes.country.data.attributes && item.attributes.diary_hour){
               match.name = item.attributes.diary_description.replace('vs.', 'vs')
               match.time = item.attributes.diary_hour.split(':').slice(0, 2).join(':')
-              match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
-
+              if(item.attributes.country.data.attributes.image.data)
+                match.flag = url_img + item.attributes.country.data.attributes.image.data.attributes.url
               //if(matches_today.includes(match.name))
                 //find = 1
 
