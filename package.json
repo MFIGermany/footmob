@@ -16,6 +16,7 @@
     "compression": "1.7.4",
     "cookie-session": "^2.1.0",
     "cors": "2.8.5",
+    "country-iso-2-to-3": "^1.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",

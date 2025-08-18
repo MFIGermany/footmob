@@ -2,10 +2,15 @@ import { readJSON } from '../utils.js'
 import fetch from 'node-fetch'
 import { JSDOM } from 'jsdom'
 import dotenv from 'dotenv'
+//Para el time zone
+import countryIso from 'country-iso-2-to-3'
+
 
 dotenv.config({ path: './.env' })
 
 const leagues = await readJSON('./leagues.json')
+
+const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
 
 export class FootMobModel {
   static function
@@ -30,16 +35,8 @@ export class FootMobModel {
     }
 
     this.url = url
-
-    // Por defecto el idioma español
-    this.lang = 'es'
-
-    this.setFunction('mylocation')
-
-    this.getRequest().then(location => {
-      this.timezone = location.timezone
-      this.ccode = location.ccode3
-    })
+    
+    this.setParams()
   }
 
   setFunction = async (func) => {
@@ -63,6 +60,54 @@ export class FootMobModel {
 
     return leagues
   }
+
+  getByCountryCode = (code) => {
+    if (code) {
+      return zonesByCountry.filter(
+        timezone => timezone.isoCountryCode === code
+      )
+    }
+
+    return zonesByCountry
+  }
+
+  getByRegionCode = (arr, code) => {
+    if (!Array.isArray(arr) || arr.length === 0) return null
+
+    const timeZones = arr[0].timeZones || []
+    if (timeZones.length === 0) return null
+
+    return (
+      timeZones.find(r => r.regionId === code) ||
+      timeZones.find(r => r.regionId === "ALL") ||
+      timeZones[0]
+    )
+  }
+
+  setParams = async () => {
+    const resp = await fetch('https://pub.fotmob.com/prod/pub/odds/mylocation')
+    const loc = await resp.json() // { countryCode: "BR", regionId: "SP", ... }
+    
+    // Por defecto el idioma español
+    this.lang = 'es'
+
+    const reg = loc.regionId
+    const cc2 = loc.countryCode    
+    const ccode3 = countryIso(cc2) || cc2
+    
+    this.timezone = 'UTC'
+    const countryZones = this.getByCountryCode(cc2)
+    //console.log(countryZones)
+    if (countryZones && countryZones[0].timeZones.length > 0) {
+      const region = this.getByRegionCode(countryZones, reg)
+      if(region){
+        this.timezone = region.timeZoneIdentifier
+        this.timezone = encodeURIComponent(this.timezone)
+      }
+      this.ccode = ccode3
+    }
+  }
+
   /*
   checkSite = (url) => {
     console.log(url)
@@ -85,8 +130,10 @@ export class FootMobModel {
   getRequest = async (fecha='') => {
     try {
       // console.log(fecha)
-      const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
-      //console.log(url)
+      //const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
+      const url = this.url + this.function + '?' + ((fecha) ? 'date=' + fecha + '&timezone=' + this.timezone : '') + '&ccode3=' + this.ccode
+      //const url = 'https://www.fotmob.com/api/data/matches?date=20250816&timezone=America%2FSao_Paulo&ccode3=BRA'
+      console.log(url)
       // Hacer la solicitud HTTP
       const response = await fetch(url, this.requestOptions)
 
@@ -96,7 +143,7 @@ export class FootMobModel {
         console.log(response.status)
         return false
       }
-
+      console.log(url)
       // Convertir la respuesta a JSON
       const data = await response.json()
 

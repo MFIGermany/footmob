@@ -120,7 +120,8 @@ export class FootMobController {
         
         if(data){
           data.leagues.forEach(async (league) => {
-            console.log(league.matches)
+            if(league.primaryId == 130)
+              console.log(league.matches)
             let find_event = false
             league.name = (league.name == 'Serie A' && league.primaryId == 268) ? league.name + ' ' : league.name
             interns.forEach((event) =>{
@@ -176,7 +177,7 @@ export class FootMobController {
             }
           })
         }
-        console.log(leagues)
+        //console.log(leagues)
         return res.json({ result: leagues })
       })
       .catch(error => {
@@ -509,7 +510,7 @@ export class FootMobController {
                   match.channels.push(channel)
                 })
 
-                console.log(match)
+                //console.log(match)
                 data.matchesRD.push(match)
                 // index++
               }
