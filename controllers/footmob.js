@@ -105,7 +105,7 @@ export class FootMobController {
         checks_ids.push(league[0].id)
     })
 
-    this.footMob.setFunction('matches')
+    this.footMob.setFunction('data/matches')
 
     this.footMob.getRequest(fecha)
       .then(data => {
@@ -291,7 +291,7 @@ export class FootMobController {
     const base_urlRD = "https://rojadirectaenhd.net/agenda.html"
     const channel_urlRD = "https://rojadirectaenhd.net"
     
-    this.footMob.setFunction('matches')
+    this.footMob.setFunction('data/matches')
     
     data.recaptcha = process.env.RECAPTCHA_SITE_KEY
 

@@ -131,7 +131,9 @@ export class FootMobModel {
     try {
       // console.log(fecha)
       //const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
-      const url = this.url + this.function + '?' + ((fecha) ? 'date=' + fecha + '&timezone=' + this.timezone : '') + '&ccode3=' + this.ccode
+      var url = this.url + this.function + '?' + ((fecha) ? 'date=' + fecha + '&timezone=' + this.timezone : '') + '&ccode3=' + this.ccode
+      if(this.function != 'data/matches')
+        url = this.url + this.function + '?' + 'lang=' + this.lang + '&ccode3=' + this.ccode
       //const url = 'https://www.fotmob.com/api/data/matches?date=20250816&timezone=America%2FSao_Paulo&ccode3=BRA'
       console.log(url)
       // Hacer la solicitud HTTP
