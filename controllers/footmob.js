@@ -426,7 +426,7 @@ export class FootMobController {
         //const url_pe = 'https://golazoplay.com/agenda.json'
         const url_pe = 'https://ftvhd.com/diaries.json'
         //const url_img = 'https://admin.futbollibrehd.pe'
-        const url_img = 'https://panel.futbollibretvs.pe'
+        const url_img = 'https://img.futbolonlinehd.com'
         //const base_urlPE = "https://futbollibreonline.org"
         const base_urlPE = "https://tvhdlibre.com"
 
