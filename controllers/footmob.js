@@ -300,7 +300,7 @@ export class FootMobController {
       data.matchesRD = []
       data.matchesPE = []
       const matches_today = []
-
+      /*
       const response = await this.footMob.getMatches(base_url + 'home.php')
       //const response = await this.footMob.getMatches(base_urlRD)
       
@@ -324,32 +324,6 @@ export class FootMobController {
             
             //matches_today.push(match.name)
 
-            /*
-            let name = match.name
-            
-            const match_today = MatchModel.getAll({ name })
-            const today = this.getDateToday()
-
-            if(match_today.length > 0 && match_today[0].date !== today){
-              //retornar vacio
-              data.matches = []
-              break
-            }
-            else if (match_today.length == 0 && index == 0){
-              const input = []
-              input.name = name
-              input.date = today
-
-              MatchModel.deleteAll()
-
-              const newmatch = MatchModel.create({ input: input })
-              console.log(newmatch)
-            }
-            else{
-              console.log(match_today)
-              console.log('longitud:' + match_today.length)
-            }*/
-            
             match.channels = []
             // Obtener los canales de transmisión del partido
             const subItems = item.querySelectorAll('ul li.subitem1')
@@ -421,7 +395,7 @@ export class FootMobController {
           }
         }
       }
-
+      */
       try {
         //const url_pe = 'https://golazoplay.com/agenda.json'
         const url_pe = 'https://ftvhd.com/diaries.json'
