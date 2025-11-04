@@ -109,7 +109,7 @@ export class FootMobController {
 
     this.footMob.getRequest(fecha)
       .then(data => {
-        //console.log('Datos recibidos:', data)
+        console.log('Datos recibidos:', data)
         
         const leagues = {}
         const interns = ['UEFA Nations League', 'World Cup Qualification']

@@ -1,16 +1,23 @@
 import { readJSON } from '../utils.js'
-import fetch from 'node-fetch'
 import { JSDOM } from 'jsdom'
 import dotenv from 'dotenv'
-//Para el time zone
+import request from 'request'
 import countryIso from 'country-iso-2-to-3'
-
 
 dotenv.config({ path: './.env' })
 
 const leagues = await readJSON('./leagues.json')
+const zonesByCountry = await readJSON('./TimeZonesByCountry.json')
 
-const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
+// --- helper para promisificar "request" ---
+function requestAsync(options) {
+  return new Promise((resolve, reject) => {
+    request(options, (error, response, body) => {
+      if (error) return reject(error)
+      resolve({ response, body })
+    })
+  })
+}
 
 export class FootMobModel {
   static function
@@ -20,22 +27,19 @@ export class FootMobModel {
 
   constructor({ url }) {
     this.requestOptions = {
-      method: 'GET', // Método de solicitud (GET en este caso)
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json', // Tipo de contenido de la solicitud
-        'X-Mas': process.env.XFMREQ
-      },
+        'Content-Type': 'application/json',
+        'x-mas': process.env.XFMREQ
+      }
     }
 
     this.requestOptionsPage = {
-      method: 'GET', // Método de solicitud (GET en este caso)
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
     }
 
     this.url = url
-    
     this.setParams()
   }
 
@@ -47,216 +51,165 @@ export class FootMobModel {
     this.lang = lg
   }
 
-  getLang = () => {
-    return this.lang
-  }
+  getLang = () => this.lang
 
   getAll = ({ name }) => {
     if (name) {
-      return leagues.filter(
-        league => league.name.toLowerCase() === name.toLowerCase()
-      )
+      return leagues.filter(l => l.name.toLowerCase() === name.toLowerCase())
     }
-
     return leagues
   }
 
   getByCountryCode = (code) => {
-    if (code) {
-      return zonesByCountry.filter(
-        timezone => timezone.isoCountryCode === code
-      )
-    }
-
+    if (code) return zonesByCountry.filter(t => t.isoCountryCode === code)
     return zonesByCountry
   }
 
   getByRegionCode = (arr, code) => {
     if (!Array.isArray(arr) || arr.length === 0) return null
-
     const timeZones = arr[0].timeZones || []
     if (timeZones.length === 0) return null
 
     return (
       timeZones.find(r => r.regionId === code) ||
-      timeZones.find(r => r.regionId === "ALL") ||
+      timeZones.find(r => r.regionId === 'ALL') ||
       timeZones[0]
     )
   }
 
+  // --- reemplazo TOTAL de fetch por request ---
   setParams = async () => {
-    const resp = await fetch('https://pub.fotmob.com/prod/pub/odds/mylocation')
-    const loc = await resp.json() // { countryCode: "BR", regionId: "SP", ... }
-    
-    // Por defecto el idioma español
-    this.lang = 'es'
-
-    const reg = loc.regionId
-    const cc2 = loc.countryCode    
-    const ccode3 = countryIso(cc2) || cc2
-    
-    this.timezone = 'UTC'
-    const countryZones = this.getByCountryCode(cc2)
-    //console.log(countryZones)
-    if (countryZones && countryZones[0].timeZones.length > 0) {
-      const region = this.getByRegionCode(countryZones, reg)
-      if(region){
-        this.timezone = region.timeZoneIdentifier
-        this.timezone = encodeURIComponent(this.timezone)
-      }
-      this.ccode = ccode3
-    }
-  }
-
-  /*
-  checkSite = (url) => {
-    console.log(url)
-    const client = url.startsWith('https') ? https : http
-  
-    const req = client.get(url, (res) => {
-      console.log(`Status Code: ${res.statusCode}`)
-      if (res.statusCode == 200) {
-        return true
-      } else {
-        return false
-      }
-    })
-  
-    req.on('error', (err) => {
-      return false
-    })
-  }*/
-
-  getRequest = async (fecha='') => {
     try {
-      // console.log(fecha)
-      //const url = this.url + this.function + '?ccode3=' + this.ccode + '&lang=' + this.lang + ((fecha) ? '&timezone=' + this.timezone + '&date=' + fecha : '')
-      var url = this.url + this.function + '?' + ((fecha) ? 'date=' + fecha + '&timezone=' + this.timezone : '') + '&ccode3=' + this.ccode
-      if(this.function != 'data/matches')
-        url = this.url + this.function + '?' + 'lang=' + this.lang + '&ccode3=' + this.ccode
-      //const url = 'https://www.fotmob.com/api/data/matches?date=20250816&timezone=America%2FSao_Paulo&ccode3=BRA'
-      console.log(url)
-      // Hacer la solicitud HTTP
-      const response = await fetch(url, this.requestOptions)
+      const { body } = await requestAsync({
+        url: 'https://pub.fotmob.com/prod/pub/odds/mylocation',
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      })
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
-        console.log(url)
-        console.log(response.status)
-        return false
+      const loc = JSON.parse(body)
+
+      this.lang = 'es'
+      const reg = loc.regionId
+      const cc2 = loc.countryCode
+      const ccode3 = countryIso(cc2) || cc2
+
+      this.timezone = 'UTC'
+      const countryZones = this.getByCountryCode(cc2)
+
+      if (countryZones && countryZones[0].timeZones.length > 0) {
+        const region = this.getByRegionCode(countryZones, reg)
+        if (region) {
+          this.timezone = encodeURIComponent(region.timeZoneIdentifier)
+        }
+        this.ccode = ccode3
       }
-      console.log(url)
-      // Convertir la respuesta a JSON
-      const data = await response.json()
-
-      return data
-    } catch (error) {
-      // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error)
-      throw error
+    } catch (err) {
+      console.error("Error en setParams:", err)
     }
   }
 
+  // --- getRequest ahora usando request ---
+  getRequest = async (fecha = '') => {
+    try {
+      let url = this.url + this.function + '?' +
+        ((fecha) ? `date=${fecha}&timezone=${this.timezone}` : '') +
+        `&ccode3=${this.ccode}`
+
+      if (this.function !== 'data/matches') {
+        url = this.url + this.function + `?lang=${this.lang}&ccode3=${this.ccode}`
+      }
+
+      console.log("URL:", url)
+
+      const opt = { ...this.requestOptions, url }
+
+      const { response, body } = await requestAsync(opt)
+
+      if (response.statusCode !== 200) {
+        console.log("Status:", response.statusCode)
+        return false
+      }
+
+      return JSON.parse(body)
+
+    } catch (error) {
+      console.error('Error en getRequest:', error)
+      return false
+    }
+  }
+
+  // --- getRequestPage con request ---
   getRequestPage = async (url) => {
     try {
       console.log(url)
-      // Hacer la solicitud HTTP
-      const response = await fetch(url)
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
+      const { response, body } = await requestAsync({ url, method: 'GET' })
+
+      if (response.statusCode !== 200)
         throw new Error('Error al obtener la página')
-      }
 
-      // Leer el contenido HTML de la respuesta
-      const html = await response.text()
-
-      // Crear un objeto DOM simulado con jsdom
-      const dom = new JSDOM(html)
-
-      // Obtener el documento y el objeto window del DOM
+      const dom = new JSDOM(body)
       const document = dom.window.document
+      const linkEl = document.querySelector('link[rel="canonical"]')
 
-      // Buscar el elemento meta con el atributo name="canonicalUrl"
-      const linkElement  = document.querySelector('link[rel="canonical"]')
+      return linkEl ? linkEl.getAttribute('href') : false
 
-      if (linkElement) {
-        const href = linkElement.getAttribute('href')
-        return href
-      } else {
-          throw new Error('No se encontró la URL en la página')
-      }
     } catch (error) {
-      // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error)
-      throw error
+      console.error('Error en getRequestPage:', error)
+      return false
     }
   }
 
-  getRequestPageJson = async (url, opt=0) => {
+  // --- JSON desde una página ---
+  getRequestPageJson = async (url, opt = 0) => {
     try {
-      // Hacer la solicitud HTTP
       console.log(url)
-      const response = await fetch(url, (opt) ? this.requestOptions : this.requestOptionsPage)
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
+      const reqOpt = opt ? this.requestOptions : this.requestOptionsPage
+      reqOpt.url = url
+
+      const { response, body } = await requestAsync(reqOpt)
+
+      if (response.statusCode !== 200) {
         console.log('Error al obtener la página')
         return false
       }
 
-      return response.json()
+      return JSON.parse(body)
+
     } catch (error) {
-      // Manejar errores de la solicitud
       console.log(error)
       return false
     }
   }
 
+  // --- obtener HTML y parsearlo ---
   getMatches = async (url) => {
     try {
-      //let url = "https://www.elitegoltv.org/home.php"
-      // Hacer la solicitud HTTP
-      const response = await fetch(url)
+      const { response, body } = await requestAsync({ url, method: 'GET' })
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
-        return false
-        //throw new Error('Error al obtener la página')
-      }
+      if (response.statusCode !== 200) return false
 
-      // Leer el contenido HTML de la respuesta
-      const html = await response.text()
+      const dom = new JSDOM(body)
+      const menu = dom.window.document.querySelector('ul.menu')
 
-      // Crear un objeto DOM simulado con jsdom
-      const dom = new JSDOM(html)
+      return menu || false
 
-      // Obtener el documento y el objeto window del DOM
-      const document = dom.window.document
-
-      // Buscar el elemento meta con el atributo name="canonicalUrl"
-      const menu = document.querySelector('ul.menu')
-
-      if (menu) {
-        return menu          
-      } else {
-          console.log('No se encontró ningún elemento <ul> con la clase "menu"')
-      }
     } catch (error) {
-      // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error)
-      throw error
+      console.error('Error en getMatches:', error)
+      return false
     }
   }
-  
+
   str_replace = async (search, replace, str) => {
     return str.replace(new RegExp(search, 'g'), replace)
   }
-  
+
+  // --- Short URL usando request ---
   getShortUrl = async (longUrl) => {
     const apiToken = 'bae820bb5d932c409f82abd67'
 
-    if(!longUrl.includes('http') && !longUrl.includes('https')){
+    if (!longUrl.includes('http')) {
       const base_url = await this.str_replace('api/', '', this.url)
       longUrl = base_url + this.lang + longUrl
     }
@@ -264,28 +217,20 @@ export class FootMobModel {
     const apiUrl = `https://api.cuty.io/quick?token=${apiToken}&url=${encodeURIComponent(longUrl)}&alias=CustomAlias`
 
     try {
-        // Hacer la solicitud HTTP
-        const response = await fetch(apiUrl, this.requestOptions)
+      const opt = { ...this.requestOptions, url: apiUrl }
 
-        // Verificar si la respuesta fue exitosa
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
-        }
+      const { response, body } = await requestAsync(opt)
 
-        // Convertir la respuesta a JSON
-        const data = await response.json()
+      if (response.statusCode !== 200)
+        throw new Error(`HTTP error! Status: ${response.statusCode}`)
 
-        if(data.success === true) {
-          return data.short_url
-        }
-        else{
-          console.log(data.message)
-          return longUrl
-        }
+      const data = JSON.parse(body)
+
+      return data.success ? data.short_url : longUrl
+
     } catch (error) {
-      // Manejar errores de la solicitud
-      console.error('Error en la solicitud:', error)
-      throw error
+      console.error('Error getShortUrl:', error)
+      return longUrl
     }
   }
 
