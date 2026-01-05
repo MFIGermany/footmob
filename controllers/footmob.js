@@ -1,9 +1,18 @@
 import { FootMobModel } from '../models/footmob.js'
 import { UserModel } from '../models/user.js'
 // import { MatchModel } from '../models/match.js'
+//import list_leagues from '../leagues.json' assert { type: "json" }
 
-import list_leagues from '../leagues.json' assert { type: "json" }
-import read from 'body-parser/lib/read.js'
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const leaguesPath = path.join(__dirname, '../leagues.json');
+const list_leagues = JSON.parse(fs.readFileSync(leaguesPath, 'utf-8'));
+
 
 export class FootMobController {
   static userFootMob
