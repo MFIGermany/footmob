@@ -9,9 +9,12 @@ import countryIso from 'country-iso-2-to-3'
 
 dotenv.config({ path: './.env' })
 
-const leagues = await readJSON('./leagues.json')
+import leagues from '../leagues.json' assert { type: 'json' }
+import zonesByCountry from '../TimeZonesByCountry.json' assert { type: 'json' }
 
-const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
+//const leagues = await readJSON('./leagues.json')
+
+//const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
 
 export class FootMobModel {
   static function
