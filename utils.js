@@ -1,17 +1,21 @@
-import { createRequire } from 'node:module'
-import fs from 'fs/promises' // Importa fs.promises para poder usar writeFile
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs/promises";
 
-const require = createRequire(import.meta.url)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export const readJSON = async (path) => {
+export const readJSON = async (relativePath) => {
     try {
-        const data = await fs.readFile(path, 'utf8')
-        return JSON.parse(data)
+        const fullPath = path.join(__dirname, relativePath);
+        const data = await fs.readFile(fullPath, 'utf8');
+        return JSON.parse(data);
     } catch (error) {
-        console.error('Error al leer el archivo JSON:', error)
-        throw error
+        console.error('Error al leer el archivo JSON:', error);
+        throw error;
     }
-}
+};
+
 
 export const writeJSON = async (path, data) => {
     try {

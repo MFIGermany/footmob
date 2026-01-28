@@ -11,7 +11,7 @@ dotenv.config({ path: './.env' })
 
 const leagues = await readJSON('./leagues.json')
 
-const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
+const zonesByCountry = await readJSON("TimeZonesByCountry.json"); // seer99
 
 export class FootMobModel {
   static function
