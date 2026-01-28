@@ -9,8 +9,11 @@ import countryIso from 'country-iso-2-to-3'
 
 dotenv.config({ path: './.env' })
 
-import leagues from '../leagues.json' assert { type: 'json' }
-import zonesByCountry from '../TimeZonesByCountry.json' assert { type: 'json' }
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
+const zonesByCountry = require('../TimeZonesByCountry.json');
+const leagues = require('../leagues.json');
 
 //const leagues = await readJSON('./leagues.json')
 
