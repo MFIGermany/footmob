@@ -9,15 +9,9 @@ import countryIso from 'country-iso-2-to-3'
 
 dotenv.config({ path: './.env' })
 
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
+const leagues = await readJSON('./leagues.json')
 
-const zonesByCountry = require('../TimeZonesByCountry.json');
-const leagues = require('../leagues.json');
-
-//const leagues = await readJSON('./leagues.json')
-
-//const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
+const zonesByCountry = await readJSON('./TimeZonesByCountry.json') // seer99
 
 export class FootMobModel {
   static function
