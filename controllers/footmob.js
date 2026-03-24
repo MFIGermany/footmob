@@ -115,7 +115,7 @@ export class FootMobController {
 
   liveFavorites = async (req, res) => {
     try {
-      const fecha = this.getTodayYmd()
+      const fecha = "20260322" //this.getTodayYmd()
       const rawTeams = String(req.query.teams || '').trim()
 
       if (!rawTeams) {
@@ -124,8 +124,6 @@ export class FootMobController {
           error: 'teams requerido'
         })
       }
-
-      fecha = "20260322"
 
       const teams = rawTeams
         .split(',')
@@ -153,7 +151,7 @@ export class FootMobController {
             const away = this.normalizeTeamName(match.away)
 
             const isFavoriteMatch = teams.includes(home) || teams.includes(away)
-            const isLive = Boolean(match.started) && !Boolean(match.finished)
+            const isLive = true //Boolean(match.started) && !Boolean(match.finished)
 
             if (!isFavoriteMatch || !isLive) return
 
