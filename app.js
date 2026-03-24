@@ -1,5 +1,6 @@
 import { createFootMobRouter } from './routes/footmob.js'
 import { createUserRouter } from './routes/user.js'
+import { createBillingRouter } from './routes/billing.js'
 import express, { json } from 'express'
 import compression from 'compression'
 import cors from 'cors'
@@ -21,6 +22,10 @@ dotenv.config({ path: './.env' })
 
 export const createApp = () => {
   const app = express()
+
+  const { router: billingRouter, controller: billingController } = createBillingRouter()
+
+  app.post('/stripe/webhook', express.raw({ type: 'application/json' }), billingController.webhook)
 
   app.use(json())
   app.use(cors())
@@ -75,6 +80,7 @@ export const createApp = () => {
 
   // Rutas
   app.use(createUserRouter())
+  app.use(billingRouter)
 
   //Routes
   const URL = process.env.URL

@@ -1,0 +1,230 @@
+import Stripe from 'stripe'
+import { BillingModel } from '../models/billing.js'
+
+const APP_BASE_URL = process.env.APP_BASE_URL || 'https://football-live.up.railway.app'
+const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || ''
+
+function renderHtml({ title, message, actionHref = '', actionText = '', secondaryHref = '', secondaryText = '' }) {
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${title}</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#101014; color:#f5f5f7; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:24px; }
+    .card { max-width:460px; width:100%; background:#17171d; border:1px solid #2a2a33; border-radius:16px; padding:24px; box-shadow:0 12px 36px rgba(0,0,0,.3); }
+    h1 { margin:0 0 12px; font-size:24px; }
+    p { color:#d3d3d8; line-height:1.5; margin:0 0 16px; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; }
+    a { text-decoration:none; }
+    .primary { background:#eb5052; color:#fff; padding:12px 16px; border-radius:12px; font-weight:700; }
+    .secondary { background:#2b2b33; color:#fff; padding:12px 16px; border-radius:12px; }
+    code { background:#22222a; color:#fff; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>${title}</h1>
+    <p>${message}</p>
+    <div class="actions">
+      ${actionHref ? `<a class="primary" href="${actionHref}">${actionText}</a>` : ''}
+      ${secondaryHref ? `<a class="secondary" href="${secondaryHref}">${secondaryText}</a>` : ''}
+    </div>
+  </div>
+</body>
+</html>`
+}
+
+export class BillingController {
+  constructor() {
+    const secretKey = process.env.STRIPE_SECRET_KEY
+    if (!secretKey) {
+      console.warn('STRIPE_SECRET_KEY no configurada')
+    }
+
+    this.stripe = secretKey ? new Stripe(secretKey) : null
+    this.billingModel = new BillingModel()
+  }
+
+  upgrade = async (req, res) => {
+    try {
+      const installId = String(req.query.install_id || '').trim()
+      if (!installId) {
+        return res.status(400).send(renderHtml({
+          title: 'Instalación inválida',
+          message: 'Falta el parámetro install_id. Abre el checkout desde la extensión.'
+        }))
+      }
+
+      if (!this.stripe || !STRIPE_PRICE_ID) {
+        return res.status(500).send(renderHtml({
+          title: 'Configuración incompleta',
+          message: 'Falta configurar Stripe en el servidor. Añade STRIPE_SECRET_KEY y STRIPE_PRICE_ID en Railway.'
+        }))
+      }
+
+      const cancelUrl = `${APP_BASE_URL}/billing/cancel?install_id=${encodeURIComponent(installId)}`
+      const successUrl = `${APP_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`
+
+      const session = await this.stripe.checkout.sessions.create({
+        mode: 'subscription',
+        line_items: [
+          {
+            price: STRIPE_PRICE_ID,
+            quantity: 1
+          }
+        ],
+        client_reference_id: installId,
+        metadata: {
+          install_id: installId
+        },
+        subscription_data: {
+          metadata: {
+            install_id: installId
+          }
+        },
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        allow_promotion_codes: true
+      })
+
+      await this.billingModel.upsertPendingCheckout({
+        installId,
+        checkoutSessionId: session.id,
+        checkoutUrl: session.url,
+        priceId: STRIPE_PRICE_ID
+      })
+
+      return res.redirect(303, session.url)
+    } catch (error) {
+      console.error('Error en /upgrade:', error)
+      return res.status(500).send(renderHtml({
+        title: 'No se pudo iniciar el pago',
+        message: 'Hubo un problema al crear la sesión de Stripe. Revisa los logs del servidor.'
+      }))
+    }
+  }
+
+  success = async (req, res) => {
+    try {
+      const sessionId = String(req.query.session_id || '').trim()
+      if (!sessionId) {
+        return res.status(400).send(renderHtml({
+          title: 'Pago incompleto',
+          message: 'No se recibió session_id. Si ya pagaste, vuelve a abrir la extensión para verificar tu estado.'
+        }))
+      }
+
+      if (!this.stripe) {
+        return res.status(500).send(renderHtml({
+          title: 'Servidor sin Stripe',
+          message: 'El servidor no tiene Stripe configurado todavía.'
+        }))
+      }
+
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['subscription', 'line_items.data.price']
+      })
+
+      if (session.payment_status !== 'paid' && session.status !== 'complete') {
+        return res.status(400).send(renderHtml({
+          title: 'Pago no confirmado',
+          message: 'Stripe todavía no marcó el pago como completado. Espera unos segundos y vuelve a abrir la extensión.'
+        }))
+      }
+
+      const installId = await this.billingModel.activateFromCheckoutSession(session)
+
+      return res.send(renderHtml({
+        title: 'Football Live Pro activado',
+        message: `Tu suscripción Pro ya quedó activada para la instalación <code>${installId}</code>. Vuelve a abrir la extensión y actualizará el plan automáticamente.`,
+        actionHref: APP_BASE_URL,
+        actionText: 'Volver al sitio'
+      }))
+    } catch (error) {
+      console.error('Error en /billing/success:', error)
+      return res.status(500).send(renderHtml({
+        title: 'No se pudo validar el pago',
+        message: 'Hubo un problema validando la sesión de Stripe. Revisa los logs del servidor.'
+      }))
+    }
+  }
+
+  cancel = async (req, res) => {
+    return res.send(renderHtml({
+      title: 'Pago cancelado',
+      message: 'No se realizó ningún cargo. Puedes volver a intentarlo desde la extensión.',
+      actionHref: APP_BASE_URL,
+      actionText: 'Volver al sitio'
+    }))
+  }
+
+  status = async (req, res) => {
+    try {
+      const installId = String(req.query.install_id || '').trim()
+      if (!installId) {
+        return res.status(400).json({ ok: false, error: 'install_id requerido' })
+      }
+
+      const record = await this.billingModel.getStatusByInstallId(installId)
+      const active = Boolean(record && record.status === 'active')
+
+      return res.json({
+        ok: true,
+        installId,
+        plan: active ? 'pro' : 'free',
+        active,
+        status: record?.status || 'inactive',
+        expiresAt: record?.current_period_end || null,
+        cancelAtPeriodEnd: Boolean(record?.cancel_at_period_end),
+        updatedAt: record?.updated_at || null
+      })
+    } catch (error) {
+      console.error('Error en /api/pro-status:', error)
+      return res.status(500).json({ ok: false, error: 'No se pudo consultar el estado' })
+    }
+  }
+
+  webhook = async (req, res) => {
+    try {
+      if (!this.stripe) {
+        return res.status(500).send('Stripe no configurado')
+      }
+
+      const signature = req.headers['stripe-signature']
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+      if (!webhookSecret) {
+        return res.status(500).send('Falta STRIPE_WEBHOOK_SECRET')
+      }
+
+      const event = this.stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
+
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object
+          if (session.mode === 'subscription') {
+            const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
+              expand: ['subscription', 'line_items.data.price']
+            })
+            await this.billingModel.activateFromCheckoutSession(fullSession)
+          }
+          break
+        }
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted': {
+          await this.billingModel.upsertFromSubscription(event.data.object, event.type)
+          break
+        }
+        default:
+          break
+      }
+
+      return res.json({ received: true })
+    } catch (error) {
+      console.error('Error en webhook Stripe:', error.message)
+      return res.status(400).send(`Webhook Error: ${error.message}`)
+    }
+  }
+}
