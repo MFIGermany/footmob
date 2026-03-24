@@ -9,7 +9,7 @@ export const createFootMobRouter = ({ url }) => {
   // Aqui van las llamadas a los metodos
   footmobRouter.post('/view', footMobController.view)
   footmobRouter.post('/', footMobController.index)
-  footmobRouter.get('/', footMobController.matches)
+  footmobRouter.get('/', footMobController.matches)  
   footmobRouter.get('/features', footMobController.features)
   footmobRouter.get('/views/:lang?', footMobController.view)
   footmobRouter.get('/news/:lang?', footMobController.news)
@@ -19,6 +19,7 @@ export const createFootMobRouter = ({ url }) => {
   footmobRouter.get('/matches/:lang?', footMobController.matches)
   footmobRouter.get('/trendingnews', footMobController.trendingnews)
   footmobRouter.get('/contribution', footMobController.contribution)
+  footmobRouter.get('/favorites/live', footMobController.liveFavorites)
   footmobRouter.get('/politica', footMobController.politica)
   footmobRouter.get('/monero', footMobController.monero)
 

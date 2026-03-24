@@ -195,45 +195,52 @@ export class BillingController {
 	  }
 	}
 
-  webhook = async (req, res) => {
-    try {
-      if (!this.stripe) {
-        return res.status(500).send('Stripe no configurado')
-      }
+	webhook = async (req, res) => {
+	  try {
+		if (!this.stripe) {
+		  return res.status(500).send('Stripe no configurado')
+		}
 
-      const signature = req.headers['stripe-signature']
-      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-      if (!webhookSecret) {
-        return res.status(500).send('Falta STRIPE_WEBHOOK_SECRET')
-      }
+		const signature = req.headers['stripe-signature']
+		const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+		if (!webhookSecret) {
+		  return res.status(500).send('Falta STRIPE_WEBHOOK_SECRET')
+		}
 
-      const event = this.stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
+		const event = this.stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
 
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const session = event.data.object
-          if (session.mode === 'subscription') {
-            const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
-              expand: ['subscription', 'line_items.data.price']
-            })
-            await this.billingModel.activateFromCheckoutSession(fullSession)
-          }
-          break
-        }
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-        case 'customer.subscription.deleted': {
-          await this.billingModel.upsertFromSubscription(event.data.object, event.type)
-          break
-        }
-        default:
-          break
-      }
+		switch (event.type) {
+		  case 'checkout.session.completed': {
+			const session = event.data.object
+			if (session.mode === 'subscription') {
+			  const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
+				expand: ['subscription', 'line_items.data.price']
+			  })
+			  await this.billingModel.activateFromCheckoutSession(fullSession)
+			}
+			break
+		  }
 
-      return res.json({ received: true })
-    } catch (error) {
-      console.error('Error en webhook Stripe:', error.message)
-      return res.status(400).send(`Webhook Error: ${error.message}`)
-    }
-  }
+		  case 'customer.subscription.created':
+		  case 'customer.subscription.updated':
+		  case 'customer.subscription.deleted': {
+			await this.billingModel.upsertFromSubscription(event.data.object, event.type)
+			break
+		  }
+
+		  case 'invoice.payment_failed': {
+			await this.billingModel.markPaymentFailedFromInvoice(event.data.object, event.type)
+			break
+		  }
+
+		  default:
+			break
+		}
+
+		return res.json({ received: true })
+	  } catch (error) {
+		console.error('Error en webhook Stripe:', error.message)
+		return res.status(400).send(`Webhook Error: ${error.message}`)
+	  }
+	}
 }

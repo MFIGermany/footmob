@@ -227,6 +227,37 @@ export class BillingModel {
       ])
     }
   }
+  
+  async markPaymentFailedFromInvoice(invoice, eventType = 'invoice.payment_failed') {
+	  await this.ready
+
+	  const subscriptionId = typeof invoice?.subscription === 'string'
+		? invoice.subscription
+		: invoice?.subscription?.id || null
+
+	  const customerId = typeof invoice?.customer === 'string'
+		? invoice.customer
+		: invoice?.customer?.id || null
+
+	  if (!subscriptionId) return
+
+	  const sql = `
+		UPDATE extension_subscriptions
+		SET status = 'past_due',
+			stripe_customer_id = COALESCE(?, stripe_customer_id),
+			last_event_type = ?,
+			raw_payload = ?,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE stripe_subscription_id = ?
+	  `
+
+	  await this.connection.execute(sql, [
+		customerId,
+		eventType,
+		JSON.stringify(invoice),
+		subscriptionId
+	  ])
+	}
 
   async getStatusByInstallId(installId) {
     await this.ready

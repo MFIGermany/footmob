@@ -34,6 +34,12 @@ export class FootMobController {
     return res.json({ result: data })
   }
 
+  normalizeTeamName(value = '') {
+    return String(value)
+      .trim()
+      .toLowerCase()
+  }
+
   getCountry = (name) => {
     if(this.footMob.getLang() === 'es'){
       let countries = {
@@ -95,6 +101,88 @@ export class FootMobController {
   
     // Cinco minutos en milisegundos: 5 * 60 * 1000
     return differenceInMilliseconds > 5 * 60 * 1000
+  }
+
+  getTodayYmd = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    return `${year}${month}${day}`;
+  }
+
+  liveFavorites = async (req, res) => {
+    try {
+      const fecha = getTodayYmd()
+      const rawTeams = String(req.query.teams || '').trim()
+
+      if (!rawTeams) {
+        return res.status(400).json({
+          ok: false,
+          error: 'teams requerido'
+        })
+      }
+
+      fecha = "20260322"
+
+      const teams = rawTeams
+        .split(',')
+        .map(team => this.normalizeTeamName(team))
+        .filter(Boolean)
+
+      if (!teams.length) {
+        return res.status(400).json({
+          ok: false,
+          error: 'No se recibieron equipos válidos'
+        })
+      }
+
+      // reutiliza aquí tu misma lógica actual de obtener partidos del día
+      this.footMob.setFunction('data/matches')
+
+      this.footMob.getRequest(fecha)
+        .then(data => {
+
+        const liveMatches = []
+
+        Object.values(data || {}).forEach(group => {
+          Object.values(group?.matches || {}).forEach(match => {
+            const home = this.normalizeTeamName(match.home)
+            const away = this.normalizeTeamName(match.away)
+
+            const isFavoriteMatch = teams.includes(home) || teams.includes(away)
+            const isLive = Boolean(match.started) && !Boolean(match.finished)
+
+            if (!isFavoriteMatch || !isLive) return
+
+            liveMatches.push({
+              key: `${home}__${away}__${match.start || ''}`,
+              home: match.home,
+              away: match.away,
+              scorehome: Number(match.scorehome || 0),
+              scoreaway: Number(match.scoreaway || 0),
+              time: match.time || '',
+              start: match.start || null,
+              started: Boolean(match.started),
+              finished: Boolean(match.finished)
+            })
+          })
+        })
+
+        return res.json({
+          ok: true,
+          matches: liveMatches
+        })
+      })
+    } catch (error) {
+      console.error('Error en /favorites/live:', error)
+      return res.status(500).json({
+        ok: false,
+        error: 'No se pudieron obtener los partidos en vivo'
+      })
+    }
   }
   
   index = async (req, res) => {
