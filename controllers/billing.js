@@ -161,30 +161,39 @@ export class BillingController {
   }
 
   status = async (req, res) => {
-    try {
-      const installId = String(req.query.install_id || '').trim()
-      if (!installId) {
-        return res.status(400).json({ ok: false, error: 'install_id requerido' })
-      }
+	  try {
+		const installId = String(req.query.install_id || '').trim()
+		if (!installId) {
+		  return res.status(400).json({ ok: false, error: 'install_id requerido' })
+		}
 
-      const record = await this.billingModel.getStatusByInstallId(installId)
-      const active = Boolean(record && record.status === 'active')
+		const record = await this.billingModel.getStatusByInstallId(installId)
 
-      return res.json({
-        ok: true,
-        installId,
-        plan: active ? 'pro' : 'free',
-        active,
-        status: record?.status || 'inactive',
-        expiresAt: record?.current_period_end || null,
-        cancelAtPeriodEnd: Boolean(record?.cancel_at_period_end),
-        updatedAt: record?.updated_at || null
-      })
-    } catch (error) {
-      console.error('Error en /api/pro-status:', error)
-      return res.status(500).json({ ok: false, error: 'No se pudo consultar el estado' })
-    }
-  }
+		const now = new Date()
+		const expiresAt = record?.current_period_end ? new Date(record.current_period_end) : null
+		const hasNotExpired = !expiresAt || expiresAt > now
+
+		const active = Boolean(
+		  record &&
+		  record.status === 'active' &&
+		  hasNotExpired
+		)
+
+		return res.json({
+		  ok: true,
+		  installId,
+		  plan: active ? 'pro' : 'free',
+		  active,
+		  status: record?.status || 'inactive',
+		  expiresAt: record?.current_period_end || null,
+		  cancelAtPeriodEnd: Boolean(record?.cancel_at_period_end),
+		  updatedAt: record?.updated_at || null
+		})
+	  } catch (error) {
+		console.error('Error en /api/pro-status:', error)
+		return res.status(500).json({ ok: false, error: 'No se pudo consultar el estado' })
+	  }
+	}
 
   webhook = async (req, res) => {
     try {

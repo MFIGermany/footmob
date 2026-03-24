@@ -81,67 +81,70 @@ export class BillingModel {
   }
 
   async activateFromCheckoutSession(session) {
-    await this.ready
+	  await this.ready
 
-    const installId = session?.client_reference_id || session?.metadata?.install_id
-    if (!installId) {
-      throw new Error('Checkout session sin install_id')
-    }
+	  const installId = session?.client_reference_id || session?.metadata?.install_id
+	  if (!installId) {
+		throw new Error('Checkout session sin install_id')
+	  }
 
-    const subscriptionId = typeof session.subscription === 'string'
-      ? session.subscription
-      : session.subscription?.id || null
+	  const subscriptionId = typeof session.subscription === 'string'
+		? session.subscription
+		: session.subscription?.id || null
 
-    const customerId = typeof session.customer === 'string'
-      ? session.customer
-      : session.customer?.id || null
+	  const customerId = typeof session.customer === 'string'
+		? session.customer
+		: session.customer?.id || null
 
-    const priceId = session?.line_items?.data?.[0]?.price?.id || null
-    const subscription = session?.subscription_details || null
+	  const priceId = session?.line_items?.data?.[0]?.price?.id || null
 
-    const sql = `
-      INSERT INTO extension_subscriptions (
-        install_id,
-        plan,
-        status,
-        stripe_customer_id,
-        stripe_subscription_id,
-        stripe_checkout_session_id,
-        stripe_price_id,
-        current_period_end,
-        cancel_at_period_end,
-        activated_at,
-        last_event_type,
-        raw_payload
-      ) VALUES (?, 'pro', 'active', ?, ?, ?, ?, ?, ?, NOW(), 'checkout.session.completed', ?)
-      ON DUPLICATE KEY UPDATE
-        plan = 'pro',
-        status = 'active',
-        stripe_customer_id = VALUES(stripe_customer_id),
-        stripe_subscription_id = VALUES(stripe_subscription_id),
-        stripe_checkout_session_id = VALUES(stripe_checkout_session_id),
-        stripe_price_id = COALESCE(VALUES(stripe_price_id), stripe_price_id),
-        current_period_end = COALESCE(VALUES(current_period_end), current_period_end),
-        cancel_at_period_end = VALUES(cancel_at_period_end),
-        activated_at = COALESCE(activated_at, NOW()),
-        last_event_type = 'checkout.session.completed',
-        raw_payload = VALUES(raw_payload),
-        updated_at = CURRENT_TIMESTAMP
-    `
+	  const subscription = typeof session.subscription === 'object'
+		? session.subscription
+		: null
 
-    await this.connection.execute(sql, [
-      installId,
-      customerId,
-      subscriptionId,
-      session.id,
-      priceId,
-      this.unixToMysqlDate(subscription?.current_period_end),
-      subscription?.cancel_at_period_end ? 1 : 0,
-      JSON.stringify(session)
-    ])
+	  const sql = `
+		INSERT INTO extension_subscriptions (
+		  install_id,
+		  plan,
+		  status,
+		  stripe_customer_id,
+		  stripe_subscription_id,
+		  stripe_checkout_session_id,
+		  stripe_price_id,
+		  current_period_end,
+		  cancel_at_period_end,
+		  activated_at,
+		  last_event_type,
+		  raw_payload
+		) VALUES (?, 'pro', 'active', ?, ?, ?, ?, ?, ?, NOW(), 'checkout.session.completed', ?)
+		ON DUPLICATE KEY UPDATE
+		  plan = 'pro',
+		  status = 'active',
+		  stripe_customer_id = VALUES(stripe_customer_id),
+		  stripe_subscription_id = VALUES(stripe_subscription_id),
+		  stripe_checkout_session_id = VALUES(stripe_checkout_session_id),
+		  stripe_price_id = COALESCE(VALUES(stripe_price_id), stripe_price_id),
+		  current_period_end = COALESCE(VALUES(current_period_end), current_period_end),
+		  cancel_at_period_end = VALUES(cancel_at_period_end),
+		  activated_at = COALESCE(activated_at, NOW()),
+		  last_event_type = 'checkout.session.completed',
+		  raw_payload = VALUES(raw_payload),
+		  updated_at = CURRENT_TIMESTAMP
+	  `
 
-    return installId
-  }
+	  await this.connection.execute(sql, [
+		installId,
+		customerId,
+		subscriptionId,
+		session.id,
+		priceId,
+		this.unixToMysqlDate(subscription?.current_period_end),
+		subscription?.cancel_at_period_end ? 1 : 0,
+		JSON.stringify(session)
+	  ])
+
+	  return installId
+	}
 
   async upsertFromSubscription(subscription, eventType = 'customer.subscription.updated') {
     await this.ready
@@ -229,12 +232,13 @@ export class BillingModel {
     await this.ready
 
     const sql = `
-      SELECT install_id, plan, status, current_period_end, cancel_at_period_end,
-             stripe_subscription_id, stripe_customer_id, updated_at, activated_at
-      FROM extension_subscriptions
-      WHERE install_id = ?
-      LIMIT 1
-    `
+	  SELECT install_id, plan, status, current_period_end, cancel_at_period_end,
+			 stripe_subscription_id, stripe_customer_id, updated_at, activated_at
+	  FROM extension_subscriptions
+	  WHERE install_id = ?
+	  ORDER BY updated_at DESC
+	  LIMIT 1
+	`
 
     const [rows] = await this.connection.execute(sql, [installId])
     return rows[0] || null
