@@ -115,7 +115,7 @@ export class FootMobController {
 
   liveFavorites = async (req, res) => {
     try {
-      const fecha = getTodayYmd()
+      const fecha = this.getTodayYmd()
       const rawTeams = String(req.query.teams || '').trim()
 
       if (!rawTeams) {
