@@ -115,7 +115,7 @@ export class FootMobController {
 
   liveFavorites = async (req, res) => {
     try {
-      const fecha = "20260322" // this.getTodayYmd()
+      const fecha = this.getTodayYmd()
       const rawTeams = String(req.query.teams || '').trim()
 
       if (!rawTeams) {
@@ -163,7 +163,7 @@ export class FootMobController {
             !Boolean(match?.status?.finished) &&
             !Boolean(match?.status?.cancelled)
 
-          if (!isFavoriteMatch) { // || !isLive
+          if (!isFavoriteMatch || !isLive) {
             return
           }
 
