@@ -40,6 +40,60 @@ export class FootMobController {
       .toLowerCase()
   }
 
+  reverseCountryMap = (name) => {
+    if(this.footMob.getLang() === 'es'){
+      let countries = {
+        'Alemania': 'Germany',
+        'Escocia': 'Scotland',
+        'Hungría': 'Hungary',
+        'Suiza': 'Switzerland',
+        'Suecia': 'Sweden',
+        'España': 'Spain',
+        'Noruega': 'Norway',
+        'Croacia': 'Croatia',
+        'Italia': 'Italy',
+        'Eslovenia': 'Slovenia',
+        'Polonia': 'Poland',
+        'Dinamarca': 'Denmark',
+        'Inglaterra': 'England',
+        'Países Bajos': 'Netherlands',
+        'Francia': 'France',
+        'Rumania': 'Romania',
+        'Ucrania': 'Ukraine',
+        'Bélgica': 'Belgium',
+        'Eslovaquia': 'Slovakia',
+        'Luxemburgo': 'Luxembourg',
+        'Turquía': 'Turkiye',
+        'Chequia': 'Czechia',
+        'Bielorrusia': 'Belarus',
+        'Rusia': 'Russia',
+        'Chipre': 'Cyprus',
+        'Moldavia': 'Moldova',
+        'Letonia': 'Latvia',
+        'Lituania': 'Lithuania',
+        'Islas Feroe': 'Faroe Islands',
+        'Irlanda del Norte': 'Northern Ireland',
+        'Bosnia y Herzegovina': 'Bosnia and Herzegovina',
+        'Macedonia del Norte': 'North Macedonia',
+        'Kazajistán': 'Kazakhstan',
+        'Azerbaiyán': 'Azerbaijan',
+        'Estados Unidos': 'USA',
+        'Irlanda': 'Ireland',
+        'Finlandia': 'Finland',
+        'Islandia': 'Iceland',
+        'Grecia': 'Greece',
+        'Gales': 'Wales'
+      };
+
+      if(countries[name])
+        name = countries[name]
+      else
+        name = name.split('/').map(country => countries[country] || country).join('/')
+    }
+
+    return name
+  }
+
   getCountry = (name) => {
     if(this.footMob.getLang() === 'es'){
       let countries = {
@@ -127,6 +181,7 @@ export class FootMobController {
 
       const teams = rawTeams
         .split(',')
+        .map(team => this.reverseCountryMap(team))
         .map(team => this.normalizeTeamName(team))
         .filter(Boolean)
 
@@ -172,8 +227,8 @@ export class FootMobController {
             matchId: match?.id || null,
             leagueId: match?.leagueId || null,
             leagueName: league?.name || '',
-            home: homeName,
-            away: awayName,
+            home: this.getCountry(homeName),
+            away: this.getCountry(awayName),
             homeId: match?.home?.id || null,
             awayId: match?.away?.id || null,
             scorehome: Number(match?.home?.score || 0),
