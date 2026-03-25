@@ -163,8 +163,8 @@ export class FootMobController {
             !Boolean(match?.status?.finished) &&
             !Boolean(match?.status?.cancelled)
 
-          if (!isFavoriteMatch || !isLive) {
-            //return
+          if (!isFavoriteMatch) { // || !isLive
+            return
           }
 
           liveMatches.push({
