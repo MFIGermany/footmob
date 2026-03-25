@@ -115,7 +115,7 @@ export class FootMobController {
 
   liveFavorites = async (req, res) => {
     try {
-      const fecha = "20260322" //this.getTodayYmd()
+      const fecha = "20260322" // this.getTodayYmd()
       const rawTeams = String(req.query.teams || '').trim()
 
       if (!rawTeams) {
@@ -137,42 +137,62 @@ export class FootMobController {
         })
       }
 
-      // reutiliza aquí tu misma lógica actual de obtener partidos del día
       this.footMob.setFunction('data/matches')
 
-      this.footMob.getRequest(fecha)
-        .then(data => {
+      const data = await this.footMob.getRequest(fecha)
+      const liveMatches = []
 
-        const liveMatches = []
+      const leagues = Array.isArray(data?.leagues) ? data.leagues : []
 
-        Object.values(data || {}).forEach(group => {
-          Object.values(group?.matches || {}).forEach(match => {
-            const home = this.normalizeTeamName(match.home)
-            const away = this.normalizeTeamName(match.away)
+      leagues.forEach((league) => {
+        const matches = Array.isArray(league?.matches) ? league.matches : []
 
-            const isFavoriteMatch = teams.includes(home) || teams.includes(away)
-            const isLive = true //Boolean(match.started) && !Boolean(match.finished)
+        matches.forEach((match) => {
+          const homeName = match?.home?.name || ''
+          const awayName = match?.away?.name || ''
 
-            if (!isFavoriteMatch || !isLive) return
+          const normalizedHome = this.normalizeTeamName(homeName)
+          const normalizedAway = this.normalizeTeamName(awayName)
 
-            liveMatches.push({
-              key: `${home}__${away}__${match.start || ''}`,
-              home: match.home,
-              away: match.away,
-              scorehome: Number(match.scorehome || 0),
-              scoreaway: Number(match.scoreaway || 0),
-              time: match.time || '',
-              start: match.start || null,
-              started: Boolean(match.started),
-              finished: Boolean(match.finished)
-            })
+          const isFavoriteMatch =
+            teams.includes(normalizedHome) ||
+            teams.includes(normalizedAway)
+
+          const isLive =
+            Boolean(match?.status?.started) &&
+            !Boolean(match?.status?.finished) &&
+            !Boolean(match?.status?.cancelled)
+
+          if (!isFavoriteMatch || !isLive) {
+            return
+          }
+
+          liveMatches.push({
+            key: `${normalizedHome}__${normalizedAway}__${match?.status?.utcTime || match?.timeTS || ''}`,
+            matchId: match?.id || null,
+            leagueId: match?.leagueId || null,
+            leagueName: league?.name || '',
+            home: homeName,
+            away: awayName,
+            homeId: match?.home?.id || null,
+            awayId: match?.away?.id || null,
+            scorehome: Number(match?.home?.score || 0),
+            scoreaway: Number(match?.away?.score || 0),
+            scoreStr: match?.status?.scoreStr || `${Number(match?.home?.score || 0)} - ${Number(match?.away?.score || 0)}`,
+            time: match?.status?.reason?.short || '',
+            utcTime: match?.status?.utcTime || null,
+            start: match?.status?.utcTime || null,
+            timeTS: match?.timeTS || null,
+            started: Boolean(match?.status?.started),
+            finished: Boolean(match?.status?.finished),
+            cancelled: Boolean(match?.status?.cancelled)
           })
         })
+      })
 
-        return res.json({
-          ok: true,
-          matches: liveMatches
-        })
+      return res.json({
+        ok: true,
+        matches: liveMatches
       })
     } catch (error) {
       console.error('Error en /favorites/live:', error)
