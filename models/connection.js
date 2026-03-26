@@ -6,11 +6,14 @@ dotenv.config({ path: './.env' })
 const DEFAULT_CONFIG = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT || 3306),
   password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 }
 
-const connectionString = process.env.DATABASE_URL ?? DEFAULT_CONFIG
+const connectionConfig = process.env.DATABASE_URL ?? DEFAULT_CONFIG
 
-export const createConnection = () => mysql.createConnection(connectionString)
+export const pool = mysql.createPool(connectionConfig)
