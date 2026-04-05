@@ -45,6 +45,60 @@ export class BillingController {
 
     this.stripe = secretKey ? new Stripe(secretKey) : null
     this.billingModel = new BillingModel()
+    this.statusCache = new Map()
+  }
+
+  getCacheTtl(record) {
+    const now = Date.now()
+    const nowDate = new Date()
+
+    const expiresAt = record?.current_period_end ? new Date(record.current_period_end) : null
+    const hasNotExpired = !expiresAt || expiresAt > nowDate
+
+    const active = Boolean(
+      record &&
+      record.status === 'active' &&
+      hasNotExpired
+    )
+
+    if (active && expiresAt) {
+      const msUntilExpire = expiresAt.getTime() - nowDate.getTime()
+      const maxTtl = 6 * 60 * 60 * 1000 // 6 horas
+      const safetyMargin = 60 * 1000 // 1 minuto
+      const minTtl = 30 * 1000 // 30 segundos
+
+      return now + Math.max(minTtl, Math.min(msUntilExpire, maxTtl) - safetyMargin)
+    }
+
+    return now + 15 * 60 * 1000 // 15 min para free/inactive
+  }
+
+  buildStatusResponse(installId, record) {
+    const now = new Date()
+    const expiresAt = record?.current_period_end ? new Date(record.current_period_end) : null
+    const hasNotExpired = !expiresAt || expiresAt > now
+
+    const active = Boolean(
+      record &&
+      record.status === 'active' &&
+      hasNotExpired
+    )
+
+    return {
+      ok: true,
+      installId,
+      plan: active ? 'pro' : 'free',
+      active,
+      status: record?.status || 'inactive',
+      expiresAt: record?.current_period_end || null,
+      cancelAtPeriodEnd: Boolean(record?.cancel_at_period_end),
+      updatedAt: record?.updated_at || null
+    }
+  }
+
+  invalidateStatusCache(installId) {
+    if (!installId) return
+    this.statusCache.delete(String(installId))
   }
 
   upgrade = async (req, res) => {
@@ -96,6 +150,8 @@ export class BillingController {
         priceId: STRIPE_PRICE_ID
       })
 
+      this.invalidateStatusCache(installId)
+
       return res.redirect(303, session.url)
     } catch (error) {
       console.error('Error en /upgrade:', error)
@@ -136,6 +192,8 @@ export class BillingController {
 
       const installId = await this.billingModel.activateFromCheckoutSession(session)
 
+      this.invalidateStatusCache(installId)
+
       return res.send(renderHtml({
         title: 'Football Live Pro activado',
         message: `Tu suscripción Pro ya quedó activada para la instalación <code>${installId}</code>. Vuelve a abrir la extensión y actualizará el plan automáticamente.`,
@@ -161,86 +219,86 @@ export class BillingController {
   }
 
   status = async (req, res) => {
-	  try {
-		const installId = String(req.query.install_id || '').trim()
-		if (!installId) {
-		  return res.status(400).json({ ok: false, error: 'install_id requerido' })
-		}
+    try {
+      const installId = String(req.query.install_id || '').trim()
+      if (!installId) {
+        return res.status(400).json({ ok: false, error: 'install_id requerido' })
+      }
 
-		const record = await this.billingModel.getStatusByInstallId(installId)
+      const now = Date.now()
+      const cached = this.statusCache.get(installId)
 
-		const now = new Date()
-		const expiresAt = record?.current_period_end ? new Date(record.current_period_end) : null
-		const hasNotExpired = !expiresAt || expiresAt > now
+      if (cached && cached.nextCheckAt > now) {
+        return res.json(cached.response)
+      }
 
-		const active = Boolean(
-		  record &&
-		  record.status === 'active' &&
-		  hasNotExpired
-		)
+      const record = await this.billingModel.getStatusByInstallId(installId)
+      const response = this.buildStatusResponse(installId, record)
+      const nextCheckAt = this.getCacheTtl(record)
 
-		return res.json({
-		  ok: true,
-		  installId,
-		  plan: active ? 'pro' : 'free',
-		  active,
-		  status: record?.status || 'inactive',
-		  expiresAt: record?.current_period_end || null,
-		  cancelAtPeriodEnd: Boolean(record?.cancel_at_period_end),
-		  updatedAt: record?.updated_at || null
-		})
-	  } catch (error) {
-		console.error('Error en /api/pro-status:', error)
-		return res.status(500).json({ ok: false, error: 'No se pudo consultar el estado' })
-	  }
-	}
+      this.statusCache.set(installId, {
+        response,
+        nextCheckAt
+      })
 
-	webhook = async (req, res) => {
-	  try {
-		if (!this.stripe) {
-		  return res.status(500).send('Stripe no configurado')
-		}
+      return res.json(response)
+    } catch (error) {
+      console.error('Error en /api/pro-status:', error)
+      return res.status(500).json({ ok: false, error: 'No se pudo consultar el estado' })
+    }
+  }
 
-		const signature = req.headers['stripe-signature']
-		const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-		if (!webhookSecret) {
-		  return res.status(500).send('Falta STRIPE_WEBHOOK_SECRET')
-		}
+  webhook = async (req, res) => {
+    try {
+      if (!this.stripe) {
+        return res.status(500).send('Stripe no configurado')
+      }
 
-		const event = this.stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
+      const signature = req.headers['stripe-signature']
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+      if (!webhookSecret) {
+        return res.status(500).send('Falta STRIPE_WEBHOOK_SECRET')
+      }
 
-		switch (event.type) {
-		  case 'checkout.session.completed': {
-			const session = event.data.object
-			if (session.mode === 'subscription') {
-			  const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
-				expand: ['subscription', 'line_items.data.price']
-			  })
-			  await this.billingModel.activateFromCheckoutSession(fullSession)
-			}
-			break
-		  }
+      const event = this.stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
 
-		  case 'customer.subscription.created':
-		  case 'customer.subscription.updated':
-		  case 'customer.subscription.deleted': {
-			await this.billingModel.upsertFromSubscription(event.data.object, event.type)
-			break
-		  }
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object
 
-		  case 'invoice.payment_failed': {
-			await this.billingModel.markPaymentFailedFromInvoice(event.data.object, event.type)
-			break
-		  }
+          if (session.mode === 'subscription') {
+            const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
+              expand: ['subscription', 'line_items.data.price']
+            })
 
-		  default:
-			break
-		}
+            const installId = await this.billingModel.activateFromCheckoutSession(fullSession)
+            this.invalidateStatusCache(installId)
+          }
+          break
+        }
 
-		return res.json({ received: true })
-	  } catch (error) {
-		console.error('Error en webhook Stripe:', error.message)
-		return res.status(400).send(`Webhook Error: ${error.message}`)
-	  }
-	}
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted': {
+          const installId = await this.billingModel.upsertFromSubscription(event.data.object, event.type)
+          this.invalidateStatusCache(installId)
+          break
+        }
+
+        case 'invoice.payment_failed': {
+          const installId = await this.billingModel.markPaymentFailedFromInvoice(event.data.object, event.type)
+          this.invalidateStatusCache(installId)
+          break
+        }
+
+        default:
+          break
+      }
+
+      return res.json({ received: true })
+    } catch (error) {
+      console.error('Error en webhook Stripe:', error.message)
+      return res.status(400).send(`Webhook Error: ${error.message}`)
+    }
+  }
 }

@@ -34,24 +34,6 @@ export class BillingModel {
     await pool.execute(sql)
   }
 
-  async upsertPendingCheckout({ installId, checkoutSessionId, checkoutUrl, priceId }) {
-    await this.ready
-
-    const sql = `
-      INSERT INTO extension_subscriptions (
-        install_id, status, stripe_checkout_session_id, checkout_url, stripe_price_id
-      ) VALUES (?, 'pending', ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        status = 'pending',
-        stripe_checkout_session_id = VALUES(stripe_checkout_session_id),
-        checkout_url = VALUES(checkout_url),
-        stripe_price_id = VALUES(stripe_price_id),
-        updated_at = CURRENT_TIMESTAMP
-    `
-
-    await pool.execute(sql, [installId, checkoutSessionId, checkoutUrl, priceId])
-  }
-
   normalizeStatus(status) {
     const value = String(status || '').toLowerCase()
 
@@ -63,11 +45,33 @@ export class BillingModel {
     return value
   }
 
+  getPlanFromNormalizedStatus(normalizedStatus) {
+    return normalizedStatus === 'active' ? 'pro' : 'free'
+  }
+
   unixToMysqlDate(unixSeconds) {
     if (!unixSeconds) return null
     const date = new Date(Number(unixSeconds) * 1000)
     if (Number.isNaN(date.getTime())) return null
     return date.toISOString().slice(0, 19).replace('T', ' ')
+  }
+
+  async upsertPendingCheckout({ installId, checkoutSessionId, checkoutUrl, priceId }) {
+    await this.ready
+
+    const sql = `
+      INSERT INTO extension_subscriptions (
+        install_id, status, stripe_checkout_session_id, checkout_url, stripe_price_id
+      ) VALUES (?, 'pending', ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        status = IF(status = 'active', status, 'pending'),
+        stripe_checkout_session_id = VALUES(stripe_checkout_session_id),
+        checkout_url = VALUES(checkout_url),
+        stripe_price_id = VALUES(stripe_price_id),
+        updated_at = CURRENT_TIMESTAMP
+    `
+
+    await pool.execute(sql, [installId, checkoutSessionId, checkoutUrl, priceId])
   }
 
   async activateFromCheckoutSession(session) {
@@ -150,6 +154,7 @@ export class BillingModel {
         : subscription?.customer?.id || null
     const priceId = subscription?.items?.data?.[0]?.price?.id || null
     const normalizedStatus = this.normalizeStatus(subscription?.status)
+    const plan = this.getPlanFromNormalizedStatus(normalizedStatus)
 
     if (installId) {
       const sql = `
@@ -165,9 +170,9 @@ export class BillingModel {
           activated_at,
           last_event_type,
           raw_payload
-        ) VALUES (?, 'pro', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
-          plan = 'pro',
+          plan = VALUES(plan),
           status = VALUES(status),
           stripe_customer_id = VALUES(stripe_customer_id),
           stripe_subscription_id = VALUES(stripe_subscription_id),
@@ -182,6 +187,7 @@ export class BillingModel {
 
       await pool.execute(sql, [
         installId,
+        plan,
         normalizedStatus,
         customerId,
         subscriptionId,
@@ -195,13 +201,14 @@ export class BillingModel {
         JSON.stringify(subscription)
       ])
 
-      return
+      return installId
     }
 
     if (subscriptionId) {
       const sql = `
         UPDATE extension_subscriptions
-        SET status = ?,
+        SET plan = ?,
+            status = ?,
             stripe_customer_id = COALESCE(?, stripe_customer_id),
             stripe_price_id = COALESCE(?, stripe_price_id),
             current_period_end = ?,
@@ -213,6 +220,7 @@ export class BillingModel {
       `
 
       await pool.execute(sql, [
+        plan,
         normalizedStatus,
         customerId,
         priceId,
@@ -222,7 +230,21 @@ export class BillingModel {
         JSON.stringify(subscription),
         subscriptionId
       ])
+
+      const [rows] = await pool.execute(
+        `
+          SELECT install_id
+          FROM extension_subscriptions
+          WHERE stripe_subscription_id = ?
+          LIMIT 1
+        `,
+        [subscriptionId]
+      )
+
+      return rows[0]?.install_id || null
     }
+
+    return null
   }
 
   async markPaymentFailedFromInvoice(invoice, eventType = 'invoice.payment_failed') {
@@ -238,11 +260,12 @@ export class BillingModel {
         ? invoice.customer
         : invoice?.customer?.id || null
 
-    if (!subscriptionId) return
+    if (!subscriptionId) return null
 
     const sql = `
       UPDATE extension_subscriptions
-      SET status = 'past_due',
+      SET plan = 'free',
+          status = 'past_due',
           stripe_customer_id = COALESCE(?, stripe_customer_id),
           last_event_type = ?,
           raw_payload = ?,
@@ -256,6 +279,18 @@ export class BillingModel {
       JSON.stringify(invoice),
       subscriptionId
     ])
+
+    const [rows] = await pool.execute(
+      `
+        SELECT install_id
+        FROM extension_subscriptions
+        WHERE stripe_subscription_id = ?
+        LIMIT 1
+      `,
+      [subscriptionId]
+    )
+
+    return rows[0]?.install_id || null
   }
 
   async getStatusByInstallId(installId) {
@@ -266,7 +301,6 @@ export class BillingModel {
              stripe_subscription_id, stripe_customer_id, updated_at, activated_at
       FROM extension_subscriptions
       WHERE install_id = ?
-      ORDER BY updated_at DESC
       LIMIT 1
     `
 
