@@ -46,7 +46,7 @@ export class BillingController {
     this.stripe = secretKey ? new Stripe(secretKey) : null
     this.billingModel = new BillingModel()
     this.statusCache = new Map()
-    this.metrics = {
+    this.stats = {
       cacheHits: 0,
       cacheMisses: 0,
       dbReads: 0
@@ -234,12 +234,12 @@ export class BillingController {
       const cached = this.statusCache.get(installId)
 
       if (cached && cached.nextCheckAt > now) {
-        this.metrics.cacheHits += 1
+        this.stats.cacheHits += 1
         return res.json(cached.response)
       }
 
-      this.metrics.cacheMisses += 1
-      this.metrics.dbReads += 1
+      this.stats.cacheMisses += 1
+      this.stats.dbReads += 1
 
       const record = await this.billingModel.getStatusByInstallId(installId)
       const response = this.buildStatusResponse(installId, record)
@@ -258,15 +258,15 @@ export class BillingController {
   }
 
   metrics = async (req, res) => {
-    const total = this.metrics.cacheHits + this.metrics.cacheMisses
+    const total = this.stats.cacheHits + this.stats.cacheMisses
     const hitRate = total > 0
-      ? ((this.metrics.cacheHits / total) * 100).toFixed(2)
+      ? ((this.stats.cacheHits / total) * 100).toFixed(2)
       : '0.00'
 
     return res.json({
       ok: true,
-      metrics: {
-        ...this.metrics,
+      stats: {
+        ...this.stats,
         totalRequests: total,
         hitRate: `${hitRate}%`
       },
