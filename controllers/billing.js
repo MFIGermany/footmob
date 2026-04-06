@@ -75,7 +75,7 @@ export class BillingController {
       return now + Math.max(minTtl, Math.min(msUntilExpire, maxTtl) - safetyMargin)
     }
 
-    return now + 15 * 60 * 1000 // 15 min para free/inactive
+    return now + 20 * 60 * 1000 // 20 min para free/inactive
   }
 
   buildStatusResponse(installId, record) {
