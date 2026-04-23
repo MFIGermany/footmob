@@ -9,9 +9,13 @@ export async function detectCountry(req) {
   const ip =
     req.headers['x-forwarded-for']?.split(',')[0] ||
     req.socket?.remoteAddress
+  
+  console.log('IP: '+ip)
 
   // 1. intentar header directo (si existe)
   let country = req.headers['cf-ipcountry']
+
+  console.log('COUNTRY: '+country)
 
   // 2. fallback a API
   if (!country && ip) {
@@ -19,6 +23,7 @@ export async function detectCountry(req) {
       const res = await fetch(`https://ipapi.co/${ip}/json/`)
       const data = await res.json()
       country = data.country_code
+      console.log(data)
     } catch (err) {
       console.error('Geo lookup error:', err)
     }
