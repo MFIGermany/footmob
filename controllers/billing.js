@@ -6,7 +6,7 @@ const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || ''
 const STRIPE_PRICE_BRL_ID = process.env.STRIPE_PRICE_BRL_ID || ''
 
 export function detectCountry(req) {
-  console.log(req)
+  console.log(req.headers)
   const country = req.headers['cf-ipcountry']
   return country && country !== 'XX' && country !== 'T1'
     ? country.toUpperCase()
