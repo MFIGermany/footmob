@@ -3,6 +3,29 @@ import { BillingModel } from '../models/billing.js'
 
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://football-live.up.railway.app'
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || ''
+const STRIPE_PRICE_BRL_ID = process.env.STRIPE_PRICE_BRL_ID || ''
+
+export async function detectCountry(req) {
+  const ip =
+    req.headers['x-forwarded-for']?.split(',')[0] ||
+    req.socket?.remoteAddress
+
+  // 1. intentar header directo (si existe)
+  let country = req.headers['cf-ipcountry']
+
+  // 2. fallback a API
+  if (!country && ip) {
+    try {
+      const res = await fetch(`https://ipapi.co/${ip}/json/`)
+      const data = await res.json()
+      country = data.country_code
+    } catch (err) {
+      console.error('Geo lookup error:', err)
+    }
+  }
+
+  return country || 'US'
+}
 
 function renderHtml({ title, message, actionHref = '', actionText = '', secondaryHref = '', secondaryText = '' }) {
   return `<!doctype html>
@@ -116,7 +139,14 @@ export class BillingController {
         }))
       }
 
-      if (!this.stripe || !STRIPE_PRICE_ID) {
+      const country = await detectCountry(req)
+
+      const selectedPriceId =
+        country === 'BR'
+          ? STRIPE_PRICE_BRL_ID
+          : STRIPE_PRICE_ID
+
+      if (!this.stripe || !selectedPriceId) {
         return res.status(500).send(renderHtml({
           title: 'Configuración incompleta',
           message: 'Falta configurar Stripe en el servidor. Añade STRIPE_SECRET_KEY y STRIPE_PRICE_ID en Railway.'
@@ -130,7 +160,7 @@ export class BillingController {
         mode: 'subscription',
         line_items: [
           {
-            price: STRIPE_PRICE_ID,
+            price: selectedPriceId,
             quantity: 1
           }
         ],
@@ -152,7 +182,7 @@ export class BillingController {
         installId,
         checkoutSessionId: session.id,
         checkoutUrl: session.url,
-        priceId: STRIPE_PRICE_ID
+        priceId: selectedPriceId
       })
 
       this.invalidateStatusCache(installId)
