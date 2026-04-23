@@ -36,6 +36,7 @@ export const createApp = () => {
   
   app.set('views', path.join(__dirname, './static/views'))
   app.set("view engine", "ejs")
+  app.set('trust proxy', true)
 
   // Middlewares
   // Para recibir los valores por POST

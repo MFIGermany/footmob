@@ -5,31 +5,12 @@ const APP_BASE_URL = process.env.APP_BASE_URL || 'https://football-live.up.railw
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || ''
 const STRIPE_PRICE_BRL_ID = process.env.STRIPE_PRICE_BRL_ID || ''
 
-export async function detectCountry(req) {
-  const ip =
-    req.headers['x-forwarded-for']?.split(',')[0] ||
-    req.socket?.remoteAddress
-  
-  console.log('IP: '+ip)
-
-  // 1. intentar header directo (si existe)
-  let country = req.headers['cf-ipcountry']
-
-  console.log('COUNTRY: '+country)
-
-  // 2. fallback a API
-  if (!country && ip) {
-    try {
-      const res = await fetch(`https://ipapi.co/${ip}/json/`)
-      const data = await res.json()
-      country = data.country_code
-      console.log(data)
-    } catch (err) {
-      console.error('Geo lookup error:', err)
-    }
-  }
-
-  return country || 'US'
+export function detectCountry(req) {
+  console.log(req)
+  const country = req.headers['cf-ipcountry']
+  return country && country !== 'XX' && country !== 'T1'
+    ? country.toUpperCase()
+    : 'US'
 }
 
 function renderHtml({ title, message, actionHref = '', actionText = '', secondaryHref = '', secondaryText = '' }) {
